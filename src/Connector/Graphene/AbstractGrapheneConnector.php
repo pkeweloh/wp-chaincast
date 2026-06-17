@@ -89,7 +89,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         try {
             $accounts = $this->rpc->call( 'condenser_api.get_accounts', [ [ $this->config->author ] ] );
         } catch ( RpcException $e ) {
-            return Result::fail( 'No se pudo consultar la cuenta: ' . $e->getMessage() );
+            return Result::fail( 'No se pudo consultar la cuenta: ' . $this->rpcDetail( $e ) );
         }
 
         $postingKeys = $this->extractPostingKeys( is_array( $accounts ) ? ( $accounts[0] ?? [] ) : [] );
@@ -119,7 +119,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $expiration = $this->expiration( $props );
         } catch ( RpcException $e ) {
             // Fallo de nodo: es reintentable.
-            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $e->getMessage(), true );
+            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $this->rpcDetail( $e ), true );
         }
 
         $ops = [
@@ -150,7 +150,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         } catch ( RpcException $e ) {
             // Distinguir error de red (reintentable) de rechazo de la cadena no es
             // trivial aquí; tratamos como reintentable salvo evidencia en contra.
-            return PublishResult::failure( 'Broadcast falló: ' . $e->getMessage(), true );
+            return PublishResult::failure( 'Broadcast falló: ' . $this->rpcDetail( $e ), true );
         }
 
         return PublishResult::success(
@@ -180,7 +180,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $ref        = RpcClient::referenceBlock( $props );
             $expiration = $this->expiration( $props );
         } catch ( RpcException $e ) {
-            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $e->getMessage(), true );
+            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $this->rpcDetail( $e ), true );
         }
 
         $ops = [
@@ -198,7 +198,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         try {
             $this->rpc->broadcastTransaction( $signedTx['tx'] );
         } catch ( RpcException $e ) {
-            return PublishResult::failure( 'Borrado falló: ' . $e->getMessage(), true );
+            return PublishResult::failure( 'Borrado falló: ' . $this->rpcDetail( $e ), true );
         }
 
         return PublishResult::success( $permlink, $this->postUrl( $this->config->author, $permlink ), $signedTx['trx_id'] );
@@ -355,6 +355,16 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $base = time();
         }
         return gmdate( 'Y-m-d\TH:i:s', $base + 60 );
+    }
+
+    private function rpcDetail( RpcException $e ): string {
+        $parts = [];
+        foreach ( $e->nodeErrors() as $node => $err ) {
+            $parts[] = $node . ' → ' . $err;
+        }
+        return empty( $parts )
+            ? $e->getMessage()
+            : $e->getMessage() . ' [' . implode( ' | ', $parts ) . ']';
     }
 
     protected function decryptKey(): PrivateKey {
