@@ -1,0 +1,7 @@
+{
+    "name": "wpbp/oracle",
+    "description": "Scratch project: usa mahdiyari/hive-php como oráculo para generar vectores golden de serialización/firma graphene. NO es parte del plugin; solo herramienta de dev. Gitignorado.",
+    "require": {
+        "mahdiyari/hive-php": "^1.1"
+    }
+}

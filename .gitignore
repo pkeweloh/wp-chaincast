@@ -1,0 +1,29 @@
+# Claude Code
+.claude/
+
+# IDE
+.idea/
+.vscode/
+
+# Dependencies
+/vendor/
+/node_modules/
+/tools/oracle/vendor/
+/tools/oracle/composer.lock
+
+# Docker
+/docker/
+
+# Internal docs / planning
+/docs/
+
+# PHPUnit
+.phpunit.result.cache
+/.phpunit.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

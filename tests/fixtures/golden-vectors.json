@@ -1,0 +1,95 @@
+{
+    "meta": {
+        "generated_by": "mahdiyari/hive-php v1.1.1 (oracle)",
+        "chain_id": "beeab0de00000000000000000000000000000000000000000000000000000000",
+        "test_priv_hex": "d8c557bddf3719b53d932fff4d8b84f9f4b433f5139219c5456dfae0160bd70b",
+        "test_priv_wif": "5KTkhhHjNnRi4LtyFTYKRPCehoDfSHUsaxNXzE4ASYxH6KQGybM",
+        "test_pub_key": "STM6dSbChW3EwgKYYLvCRwbMdkEGtKB4nB4keudbQYzAnFdGbYrGJ",
+        "note": "Clave de PRUEBA fija. Vectores deterministas para validar nuestra serialización/firma."
+    },
+    "comment_post": {
+        "tx": {
+            "ref_block_num": 4901,
+            "ref_block_prefix": 2018936457,
+            "expiration": "2026-06-14T18:00:00"
+        },
+        "operation": [
+            "comment",
+            {
+                "parent_author": "",
+                "parent_permlink": "hive-167922",
+                "author": "skunk1",
+                "permlink": "hola-mundo-desde-wordpress",
+                "title": "Hola mundo",
+                "body": "# Hola\n\nEste post viene de **WordPress** vía wp-blockchain-publish.",
+                "json_metadata": "{\"tags\":[\"hive-167922\",\"wordpress\",\"blog\"],\"app\":\"wp-blockchain-publish/0.1.0\",\"image\":[\"https://skunk1.blog/wp-content/uploads/img.png\"],\"format\":\"markdown\"}"
+            }
+        ],
+        "serialized": "25138986567820ec2e6a0101000b686976652d31363739323206736b756e6b311a686f6c612d6d756e646f2d64657364652d776f726470726573730a486f6c61206d756e646f442320486f6c610a0a4573746520706f7374207669656e65206465202a2a576f726450726573732a2a2076c3ad612077702d626c6f636b636861696e2d7075626c6973682e9e017b2274616773223a5b22686976652d313637393232222c22776f72647072657373222c22626c6f67225d2c22617070223a2277702d626c6f636b636861696e2d7075626c6973682f302e312e30222c22696d616765223a5b2268747470733a2f2f736b756e6b312e626c6f672f77702d636f6e74656e742f75706c6f6164732f696d672e706e67225d2c22666f726d6174223a226d61726b646f776e227d00",
+        "digest": "1d5f41855b9bd441795dbbde054cc8a1c0ac9d0863cbf8648f92016dca8f5652",
+        "trx_id": "bb596b827a7cc64aa023fec15908cd553f9be4f3",
+        "signature": "1fb5561d5c78de0f2b20d758ee2a9de9aca29b89c42a84935a46f516b5ad6970e26405afb84000169ea0f9659d34658f63ee7bc2a018cf2161bb6fa1bacd9c23d7"
+    },
+    "comment_utf8": {
+        "tx": {
+            "ref_block_num": 4901,
+            "ref_block_prefix": 2018936457,
+            "expiration": "2026-06-14T18:00:00"
+        },
+        "operation": [
+            "comment",
+            {
+                "parent_author": "",
+                "parent_permlink": "hive-167922",
+                "author": "skunk1",
+                "permlink": "acentos-y-emojis",
+                "title": "Café, ñandú y 🚀",
+                "body": "Texto con acentos: áéíóú, ñ, y un emoji 🚀 para probar longitudes en bytes.",
+                "json_metadata": "{\"tags\":[\"español\"],\"app\":\"wp-blockchain-publish/0.1.0\"}"
+            }
+        ],
+        "serialized": "25138986567820ec2e6a0101000b686976652d31363739323206736b756e6b31106163656e746f732d792d656d6f6a697315436166c3a92c20c3b1616e64c3ba207920f09f9a8053546578746f20636f6e206163656e746f733a20c3a1c3a9c3adc3b3c3ba2c20c3b12c207920756e20656d6f6a6920f09f9a8020706172612070726f626172206c6f6e6769747564657320656e2062797465732e397b2274616773223a5b2265737061c3b16f6c225d2c22617070223a2277702d626c6f636b636861696e2d7075626c6973682f302e312e30227d00",
+        "digest": "1bac6487d7fd296317b81463f13cdd124e57fa3cd0f4206c1c763377300052c8",
+        "trx_id": "53f7adc23707e3f17767c8a48619e7ac111e2245",
+        "signature": "20ba07b8eaa20b3214bbc2c6f4f99e25e8c49e76a066e132aeb159ea8002563249596b61ef7585ae292d95e2e8283ab851921155bec2fb42ad83c5df5fb1c31583"
+    },
+    "comment_options_benef": {
+        "tx": {
+            "ref_block_num": 4901,
+            "ref_block_prefix": 2018936457,
+            "expiration": "2026-06-14T18:00:00"
+        },
+        "operation": [
+            "comment_options",
+            {
+                "author": "skunk1",
+                "permlink": "hola-mundo-desde-wordpress",
+                "max_accepted_payout": "1000000.000 HBD",
+                "percent_hbd": 10000,
+                "allow_votes": true,
+                "allow_curation_rewards": true,
+                "extensions": [
+                    [
+                        0,
+                        {
+                            "beneficiaries": [
+                                {
+                                    "account": "algun-proyecto",
+                                    "weight": 1000
+                                },
+                                {
+                                    "account": "un-curador",
+                                    "weight": 500
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            }
+        ],
+        "serialized": "25138986567820ec2e6a011306736b756e6b311a686f6c612d6d756e646f2d64657364652d776f7264707265737300ca9a3b000000000353424400000000102701010100020e616c67756e2d70726f796563746fe8030a756e2d63757261646f72f40100",
+        "digest": "0c352dcc6b7d685678306c438a8ab20b1e1dcce1b0739bcd16329737b450b6d9",
+        "trx_id": "6b04d699a83c4b1522e3dd5c290fb70565dd6317",
+        "signature": "1fe80eb682fee79b3e9836ac5eb02313943e4d1fdd20f7658898bdb095836ea4a73e6695755300f84f1de563eeb721930638b11ec39108dbe25dc8d11251a6deea"
+    }
+}

@@ -1,0 +1,154 @@
+/* Estilos del admin de Chaincast. */
+
+/* Pestañas de ajustes. */
+.cc-tab-panel { display: none; }
+.cc-tab-panel.active { display: block; }
+
+/* Inputs de ancho consistente (en vez de full-width). */
+.cc-input { width: 100%; max-width: 32em; }
+
+/* Icono de ayuda con tooltip estilizado (caja CSS). */
+.cc-help {
+	position: relative;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	text-align: center;
+	border-radius: 50%;
+	background: #dcdcde;
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: help;
+	margin-left: 4px;
+}
+.cc-help:hover,
+.cc-help:focus { background: #c5c5c8; outline: none; }
+
+/* La cajita del tooltip: a la DERECHA del icono, para no meterse bajo el menú. */
+.cc-help[data-tip]::after {
+	content: attr(data-tip);
+	position: absolute;
+	left: calc(100% + 10px);
+	top: 50%;
+	transform: translateY(-50%);
+	width: max-content;
+	max-width: 280px;
+	background: #1d2327;
+	color: #fff;
+	padding: 8px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.45;
+	text-align: left;
+	white-space: normal;
+	box-shadow: 0 4px 16px rgba( 0, 0, 0, .18 );
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .12s ease;
+	z-index: 100;
+	pointer-events: none;
+}
+.cc-help[data-tip]::before {
+	content: '';
+	position: absolute;
+	left: calc(100% + 5px);
+	top: 50%;
+	transform: translateY(-50%);
+	border: 5px solid transparent;
+	border-right-color: #1d2327;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .12s ease;
+	z-index: 100;
+	pointer-events: none;
+}
+.cc-help:hover::after,
+.cc-help:focus::after,
+.cc-help:hover::before,
+.cc-help:focus::before {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Badge "clave guardada y cifrada" (en vez de un placeholder de asteriscos). */
+.cc-saved {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #edfaef;
+	color: #007017;
+	border: 1px solid #b7e4c0;
+	border-radius: 14px;
+	padding: 2px 12px 2px 8px;
+	font-size: 12px;
+	font-weight: 600;
+	margin: 0 0 0 8px;
+	vertical-align: middle;
+}
+.cc-saved .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+	line-height: 15px;
+}
+
+/* Campo "Posting key": badge + enlace Replace/Cancel (realce JS). */
+.cc-key {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+.cc-key .cc-saved { margin: 0; }
+.cc-key-edit,
+.cc-key-cancel { padding: 0; }
+.cc-key-hint { flex-basis: 100%; margin: 2px 0 0; }
+
+/* Tarjeta con el estado de los conectores + validación (solo pestaña General). */
+.cc-general-extra {
+	margin-top: 24px;
+	padding: 16px 20px;
+	background: #fff;
+	border: 1px solid #e0e0e6;
+	border-radius: 10px;
+	max-width: 680px;
+}
+.cc-general-extra h2 { margin-top: 0; }
+.cc-validate-row { margin: 16px 0 0; }
+.cc-general-extra .description { margin: 8px 0 0; max-width: 40em; }
+
+/* Tablas widefat anidadas en form-table: padding homogéneo con el resto. */
+.cc-tab-panel .widefat th,
+.cc-tab-panel .widefat td { padding: 8px 10px; vertical-align: middle; }
+
+/* Widget de reparto de recompensas (beneficiaries). */
+.cc-benef-table {
+	border-collapse: collapse;
+	width: 100%;
+	max-width: 420px;
+	margin: 2px 0 6px;
+}
+.cc-benef-table th,
+.cc-benef-table td { padding: 3px 6px 3px 0; text-align: left; }
+.cc-benef-table thead th {
+	font-size: 11px;
+	text-transform: uppercase;
+	color: #646970;
+	font-weight: 600;
+	border-bottom: 1px solid #dcdcde;
+}
+.cc-benef-acct { width: 100%; min-width: 9em; }
+.cc-benef-pct { width: 5.5em; }
+.cc-benef-remove {
+	color: #b32d2e;
+	text-decoration: none;
+	font-size: 18px;
+	line-height: 1;
+}
+.cc-benef-remove:hover { color: #8a1f1f; }
+.cc-benef-total { font-size: 12px; color: #646970; margin: 4px 0 0; }
+.cc-benef-total.over { color: #b32d2e; font-weight: 600; }
+.cc-benef-add { margin-top: 2px; }

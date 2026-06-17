@@ -1,0 +1,241 @@
+# Translation template for Chaincast.
+# Copyright (C) 2026 skunk1
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Chaincast 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-16\n"
+"PO-Revision-Date: 2026-06-16\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: chaincast\n"
+
+#. Plugin Name of the plugin
+msgid "Chaincast"
+msgstr ""
+
+#. Description of the plugin
+msgid "Auto-publish WordPress posts to Hive/Steem (and future chains) via pluggable connectors."
+msgstr ""
+
+msgid "Chaincast requires PHP %1$s or higher. Current version: %2$s."
+msgstr ""
+
+msgid "Chaincast: Composer dependencies are missing. Run \"composer install\" in the plugin folder to enable signing and the queue."
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "account"
+msgstr ""
+
+msgid "Add beneficiary"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Assigned"
+msgstr ""
+
+msgid "For you"
+msgstr ""
+
+msgid "No reward sharing — you keep 100%"
+msgstr ""
+
+msgid "Hive Keychain not detected. Install the extension in your browser."
+msgstr ""
+
+msgid "Opening Keychain…"
+msgstr ""
+
+msgid "Published ✓"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Permission denied."
+msgstr ""
+
+msgid "Could not prepare the operation."
+msgstr ""
+
+msgid "Missing permlink."
+msgstr ""
+
+msgid "account:percentage, account:percentage"
+msgstr ""
+
+msgid "%1$s: credentials valid (%2$s)"
+msgstr ""
+
+msgid "Enable a connector and save the settings before validating."
+msgstr ""
+
+msgid "The posting key was not saved: the CHAINCAST_KEY constant is missing in wp-config.php."
+msgstr ""
+
+msgid "%s: the posting key is not a valid WIF; it was not saved."
+msgstr ""
+
+msgid "Automatic mode disabled: define the CHAINCAST_KEY constant in wp-config.php to store the encrypted posting key."
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Attribution footer"
+msgstr ""
+
+msgid "Append a link to the original post"
+msgstr ""
+
+#. translators: %1$s and %2$s are the literal placeholders {site} and {url}.
+msgid "Markdown. %1$s = site name, %2$s = link. Empty = default text."
+msgstr ""
+
+msgid "Reward sharing"
+msgstr ""
+
+msgid "On Hive/Steem these are called \"beneficiaries\": accounts on THIS chain that receive a % of the post's author rewards. Use the right usernames for each chain."
+msgstr ""
+
+msgid "No beneficiaries = you keep 100%. Applied only when first publishing to this chain."
+msgstr ""
+
+msgid "Validate credentials"
+msgstr ""
+
+msgid "Checks the stored posting keys against the accounts (without publishing anything)."
+msgstr ""
+
+msgid "Connector status"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Publish to %s"
+msgstr ""
+
+msgid "Automatic publishing"
+msgstr ""
+
+msgid "Publish to %s when the post is published in WordPress"
+msgstr ""
+
+msgid "If left unchecked, you decide when to publish using the button in the editor."
+msgstr ""
+
+msgid "Account (author)"
+msgstr ""
+
+msgid "Posting key"
+msgstr ""
+
+msgid "Limited-authority key (posting/voting only). Stored encrypted with AES-256-GCM. Do not use the Active or Owner key."
+msgstr ""
+
+msgid "Key saved & encrypted"
+msgstr ""
+
+msgid "Replace key"
+msgstr ""
+
+msgid "Paste your private posting key"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Leave empty to keep the current key."
+msgstr ""
+
+#. translators: 1: the literal {site} placeholder, 2: the literal {url} placeholder; keep the Markdown link format.
+msgid "*Originally published at [%1$s](%2$s).*"
+msgstr ""
+
+msgid "Default category"
+msgstr ""
+
+msgid "Fallback community (parent_permlink) used when the post has no WordPress category. The first tag of the post on the chain."
+msgstr ""
+
+msgid "Category mapping"
+msgstr ""
+
+msgid "Translate each WordPress category to its community (parent_permlink) on this chain. The post's primary category determines where it lands."
+msgstr ""
+
+msgid "There are no categories in WordPress yet."
+msgstr ""
+
+msgid "WordPress category"
+msgstr ""
+
+msgid "Tag / community on the chain"
+msgstr ""
+
+msgid "Empty = the slug is used as-is."
+msgstr ""
+
+msgid "No active connector (enable one and save the settings)."
+msgstr ""
+
+msgid "Chain"
+msgstr ""
+
+msgid "Configured"
+msgstr ""
+
+msgid "Automatic mode"
+msgstr ""
+
+msgid "No active connectors. Configure them in Settings → Chaincast."
+msgstr ""
+
+msgid "History"
+msgstr ""
+
+msgid "Clear history"
+msgstr ""
+
+msgid "Published"
+msgstr ""
+
+msgid "Updated"
+msgstr ""
+
+msgid "Keychain"
+msgstr ""
+
+msgid "view"
+msgstr ""
+
+msgid "Update on %s now"
+msgstr ""
+
+msgid "Publish to %s now"
+msgstr ""
+
+#. translators: %s: chain name, e.g. Hive
+msgid "Publish with %s Keychain"
+msgstr ""
+
+msgid "Published to the chain: %s"
+msgstr ""
+
+msgid "Queued…"
+msgstr ""
+
+msgid "Not published"
+msgstr ""
