@@ -235,9 +235,13 @@ final class MetaBox {
         }
         check_admin_referer( self::ACTION . '_' . $postId . '_' . $connectorId );
 
+        $wasPublished = PostState::STATUS_PUBLISHED === $this->state->status( $postId, $connectorId );
+
         $result = $this->publisher->publishNow( $postId, $connectorId );
 
-        if ( ! $result->success ) {
+        // A failed update must not wipe a prior published state: the post is still
+        // on-chain. Only mark failed when it wasn't already published.
+        if ( ! $result->success && ! $wasPublished ) {
             $this->state->markFailed( $postId, $connectorId, (string) $result->error );
         }
 
