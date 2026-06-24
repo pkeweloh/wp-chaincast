@@ -3,9 +3,10 @@
  * Genera permlinks válidos para Hive/Steem.
  *
  * Reglas de la cadena: minúsculas, solo [a-z0-9-], sin guiones dobles ni al
- * inicio/fin, longitud máxima 256. El permlink debe ser estable para que una
- * re-publicación de la misma entrada EDITE el post en vez de crear uno nuevo;
- * por eso se ata al ID de la entrada de WordPress.
+ * inicio/fin, longitud máxima 256. El permlink solo se genera en la primera
+ * publicación; después se persiste y se reutiliza, de modo que una edición
+ * EDITA el post en vez de crear uno nuevo (la estabilidad la da el guardado,
+ * no el contenido del slug).
  *
  * @package Chaincast\Connector\Content
  */
@@ -19,25 +20,22 @@ final class PermlinkGenerator {
     private const MAX_LENGTH = 256;
 
     /**
-     * Permlink determinista a partir del título y el ID de la entrada.
-     * El sufijo con el ID garantiza unicidad por autor (dos entradas con el
-     * mismo título no colisionan) y estabilidad frente a ediciones del cuerpo.
+     * Permlink limpio a partir del título. El ID de la entrada solo se usa como
+     * fallback cuando el título no produce slug (p. ej. título vacío o sin
+     * caracteres ASCII), para garantizar un permlink no vacío.
      */
     public function generate( string $title, int $postId ): string {
         $slug = $this->slugify( $title );
-        $suffix = (string) $postId;
 
         if ( '' === $slug ) {
-            return 'post-' . $suffix;
+            return 'post-' . $postId;
         }
 
-        // Reserva espacio para el sufijo "-{id}".
-        $maxSlug = self::MAX_LENGTH - strlen( $suffix ) - 1;
-        if ( strlen( $slug ) > $maxSlug ) {
-            $slug = rtrim( substr( $slug, 0, $maxSlug ), '-' );
+        if ( strlen( $slug ) > self::MAX_LENGTH ) {
+            $slug = rtrim( substr( $slug, 0, self::MAX_LENGTH ), '-' );
         }
 
-        return $slug . '-' . $suffix;
+        return $slug;
     }
 
     /**

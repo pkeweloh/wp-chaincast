@@ -84,7 +84,7 @@ final class SteemConnectorTest extends TestCase {
         $result = $connector->publish( $payload );
 
         $this->assertTrue( $result->success, $result->error ?? '' );
-        $this->assertSame( 'https://steemit.com/@skunk1/hola-steem-5', $result->url );
+        $this->assertSame( 'https://steemit.com/@skunk1/hola-steem', $result->url );
 
         // La firma debe validar contra el chain_id de STEEM (no el de Hive).
         $op         = $captured['operations'][0];

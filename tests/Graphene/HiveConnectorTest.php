@@ -91,8 +91,8 @@ final class HiveConnectorTest extends TestCase {
 
         // --- Resultado ---
         $this->assertTrue( $result->success, $result->error ?? '' );
-        $this->assertSame( 'hola-mundo-42', $result->ref );
-        $this->assertSame( 'https://hive.blog/@skunk1/hola-mundo-42', $result->url );
+        $this->assertSame( 'hola-mundo', $result->ref );
+        $this->assertSame( 'https://hive.blog/@skunk1/hola-mundo', $result->url );
         $this->assertMatchesRegularExpression( '/^[0-9a-f]{40}$/', (string) $result->txId );
 
         // --- Transacción capturada ---
@@ -100,7 +100,7 @@ final class HiveConnectorTest extends TestCase {
         $op = $captured['operations'][0];
         $this->assertSame( 'comment', $op[0] );
         $this->assertSame( 'skunk1', $op[1]['author'] );
-        $this->assertSame( 'hola-mundo-42', $op[1]['permlink'] );
+        $this->assertSame( 'hola-mundo', $op[1]['permlink'] );
         $this->assertSame( 'hive-167922', $op[1]['parent_permlink'] );
         $this->assertSame( '', $op[1]['parent_author'] );
         $this->assertCount( 1, $captured['signatures'] );
