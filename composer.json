@@ -1,5 +1,5 @@
 {
-    "name": "skunk1/chaincast",
+    "name": "pkeweloh/wp-chaincast",
     "description": "WordPress plugin to auto-publish posts to Hive/Steem (and future blockchains) via pluggable connectors.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

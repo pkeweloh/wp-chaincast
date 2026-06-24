@@ -15,7 +15,7 @@ namespace Chaincast\Connector\Graphene;
 final class GrapheneConfig {
 
     /**
-     * @param string   $author              Account on the chain (e.g. 'skunk1').
+     * @param string   $author              Account on the chain (e.g. 'demo-author').
      * @param ?string  $encryptedPostingKey Vault-encrypted posting key, or null.
      * @param string   $defaultTag          Default main tag (parent_permlink).
      * @param string[] $nodes               RPC nodes; empty: use the connector's own.

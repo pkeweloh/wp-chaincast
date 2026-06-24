@@ -71,7 +71,7 @@ $commentOp = [
     (object) [
         'parent_author'  => '',
         'parent_permlink' => 'hive-167922',
-        'author'         => 'skunk1',
+        'author'         => 'demo-author',
         'permlink'       => 'hola-mundo-desde-wordpress',
         'title'          => 'Hola mundo',
         'body'           => "# Hola\n\nEste post viene de **WordPress** vía wp-blockchain-publish.",
@@ -79,7 +79,7 @@ $commentOp = [
             [
                 'tags'   => [ 'hive-167922', 'wordpress', 'blog' ],
                 'app'    => 'wp-blockchain-publish/0.1.0',
-                'image'  => [ 'https://skunk1.blog/wp-content/uploads/img.png' ],
+                'image'  => [ 'https://example.com/wp-content/uploads/img.png' ],
                 'format' => 'markdown',
             ],
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
@@ -93,7 +93,7 @@ $utf8Op = [
     (object) [
         'parent_author'  => '',
         'parent_permlink' => 'hive-167922',
-        'author'         => 'skunk1',
+        'author'         => 'demo-author',
         'permlink'       => 'acentos-y-emojis',
         'title'          => 'Café, ñandú y 🚀',
         'body'           => 'Texto con acentos: áéíóú, ñ, y un emoji 🚀 para probar longitudes en bytes.',
@@ -108,7 +108,7 @@ $utf8Op = [
 $commentOptionsOp = [
     'comment_options',
     (object) [
-        'author'                 => 'skunk1',
+        'author'                 => 'demo-author',
         'permlink'               => 'hola-mundo-desde-wordpress',
         'max_accepted_payout'    => '1000000.000 HBD',
         'percent_hbd'            => 10000,

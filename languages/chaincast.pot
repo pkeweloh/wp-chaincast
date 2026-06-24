@@ -1,5 +1,5 @@
 # Translation template for Chaincast.
-# Copyright (C) 2026 skunk1
+# Copyright (C) 2026 Philipp Keweloh
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""

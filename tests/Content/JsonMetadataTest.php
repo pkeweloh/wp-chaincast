@@ -14,7 +14,7 @@ use Chaincast\Connector\PostPayload;
 final class JsonMetadataTest extends TestCase {
 
     private function payload( array $tags, array $images = [], string $canonical = '' ): PostPayload {
-        return new PostPayload( 'T', 'B', $tags, $images, 'skunk1', $canonical, 1 );
+        return new PostPayload( 'T', 'B', $tags, $images, 'demo-author', $canonical, 1 );
     }
 
     public function testIncludesAppAndFormat(): void {
@@ -40,7 +40,7 @@ final class JsonMetadataTest extends TestCase {
     }
 
     public function testCanonicalUrlIncludedWhenSet(): void {
-        $meta = json_decode( ( new JsonMetadata() )->build( $this->payload( [ 'blog' ], [], 'https://skunk1.blog/x' ) ), true );
-        $this->assertSame( 'https://skunk1.blog/x', $meta['canonical_url'] );
+        $meta = json_decode( ( new JsonMetadata() )->build( $this->payload( [ 'blog' ], [], 'https://example.com/x' ) ), true );
+        $this->assertSame( 'https://example.com/x', $meta['canonical_url'] );
     }
 }

@@ -65,7 +65,7 @@ final class HiveConnectorTest extends TestCase {
         $vault     = new Vault( 'test-secret' );
         $connector = new HiveConnector(
             new GrapheneConfig(
-                author: 'skunk1',
+                author: 'demo-author',
                 encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ),
                 defaultTag: 'blog',
                 nodes: [ self::NODE ],
@@ -81,9 +81,9 @@ final class HiveConnectorTest extends TestCase {
             title: 'Hola mundo',
             body: "# Hola\n\nCuerpo en markdown.",
             tags: [ 'Hive-167922', 'wordpress' ],
-            images: [ 'https://skunk1.blog/img.png' ],
-            author: 'skunk1',
-            canonicalUrl: 'https://skunk1.blog/hola-mundo',
+            images: [ 'https://example.com/img.png' ],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/hola-mundo',
             wpPostId: 42,
         );
 
@@ -92,14 +92,14 @@ final class HiveConnectorTest extends TestCase {
         // Result
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertSame( 'hola-mundo', $result->ref );
-        $this->assertSame( 'https://hive.blog/@skunk1/hola-mundo', $result->url );
+        $this->assertSame( 'https://hive.blog/@demo-author/hola-mundo', $result->url );
         $this->assertMatchesRegularExpression( '/^[0-9a-f]{40}$/', (string) $result->txId );
 
         // Captured transaction
         $this->assertNotNull( $captured, 'No transaction was emitted.' );
         $op = $captured['operations'][0];
         $this->assertSame( 'comment', $op[0] );
-        $this->assertSame( 'skunk1', $op[1]['author'] );
+        $this->assertSame( 'demo-author', $op[1]['author'] );
         $this->assertSame( 'hola-mundo', $op[1]['permlink'] );
         $this->assertSame( 'hive-167922', $op[1]['parent_permlink'] );
         $this->assertSame( '', $op[1]['parent_author'] );
@@ -132,8 +132,8 @@ final class HiveConnectorTest extends TestCase {
             body: 'Cuerpo.',
             tags: [ 'blog' ],
             images: [],
-            author: 'skunk1',
-            canonicalUrl: 'https://skunk1.blog/con-reparto',
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/con-reparto',
             wpPostId: 77,
             beneficiaries: [
                 [ 'account' => 'algun-proyecto', 'weight' => 1000 ],
@@ -150,7 +150,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertSame( 'comment_options', $ops[1][0] );
 
         $co = $ops[1][1];
-        $this->assertSame( 'skunk1', $co['author'] );
+        $this->assertSame( 'demo-author', $co['author'] );
         $this->assertSame( $result->ref, $co['permlink'] );
         $this->assertSame( '1000000.000 HBD', $co['max_accepted_payout'] );
         $this->assertSame( 10000, $co['percent_hbd'] );
@@ -187,8 +187,8 @@ final class HiveConnectorTest extends TestCase {
             body: 'Cuerpo corregido.',
             tags: [ 'blog' ],
             images: [],
-            author: 'skunk1',
-            canonicalUrl: 'https://skunk1.blog/ya-existe',
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/ya-existe',
             wpPostId: 77,
             beneficiaries: [ [ 'account' => 'algun-proyecto', 'weight' => 1000 ] ],
             extra: [ 'permlink' => 'ya-existe' ],
@@ -232,7 +232,7 @@ final class HiveConnectorTest extends TestCase {
         $vault = new Vault( 'test-secret' );
         return new HiveConnector(
             new GrapheneConfig(
-                author: 'skunk1',
+                author: 'demo-author',
                 encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ),
                 defaultTag: 'blog',
                 nodes: [ self::NODE ],
@@ -247,7 +247,7 @@ final class HiveConnectorTest extends TestCase {
 
     public function testPublishFailsGracefullyWithoutPostingKey(): void {
         $connector = new HiveConnector(
-            new GrapheneConfig( author: 'skunk1' ), // no posting key.
+            new GrapheneConfig( author: 'demo-author' ), // no posting key.
             new RpcClient( [ self::NODE ], new FakeTransport( [ self::NODE => FakeTransport::okBody( null ) ] ) ),
             new Vault( 'test-secret' ),
             new Secp256k1(),
@@ -256,7 +256,7 @@ final class HiveConnectorTest extends TestCase {
         );
 
         $this->assertFalse( $connector->supportsAutomatic() );
-        $result = $connector->publish( new PostPayload( 'T', 'B', [ 'blog' ], [], 'skunk1', '', 1 ) );
+        $result = $connector->publish( new PostPayload( 'T', 'B', [ 'blog' ], [], 'demo-author', '', 1 ) );
         $this->assertFalse( $result->success );
     }
 }

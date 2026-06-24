@@ -63,7 +63,7 @@ final class SteemConnectorTest extends TestCase {
 
         $vault     = new Vault( 'test-secret' );
         $connector = new SteemConnector(
-            new GrapheneConfig( author: 'skunk1', encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ), defaultTag: 'blog', nodes: [ self::NODE ] ),
+            new GrapheneConfig( author: 'demo-author', encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ), defaultTag: 'blog', nodes: [ self::NODE ] ),
             new RpcClient( [ self::NODE ], $transport ),
             $vault,
             new Secp256k1(),
@@ -76,7 +76,7 @@ final class SteemConnectorTest extends TestCase {
             body: 'Cuerpo.',
             tags: [ 'blog' ],
             images: [],
-            author: 'skunk1',
+            author: 'demo-author',
             canonicalUrl: '',
             wpPostId: 5,
         );
@@ -84,7 +84,7 @@ final class SteemConnectorTest extends TestCase {
         $result = $connector->publish( $payload );
 
         $this->assertTrue( $result->success, $result->error ?? '' );
-        $this->assertSame( 'https://steemit.com/@skunk1/hola-steem', $result->url );
+        $this->assertSame( 'https://steemit.com/@demo-author/hola-steem', $result->url );
 
         // The signature must validate against STEEM's chain_id (not Hive's).
         $op         = $captured['operations'][0];
