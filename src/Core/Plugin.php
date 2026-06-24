@@ -18,6 +18,7 @@ use Chaincast\Admin\SettingsPage;
 use Chaincast\Connector\Content\HtmlToMarkdown;
 use Chaincast\Connector\PayloadFactory;
 use Chaincast\Core\State\PostState;
+use Chaincast\Frontend\ChainLinks;
 
 final class Plugin {
 
@@ -31,6 +32,7 @@ final class Plugin {
     private SettingsPage $settingsPage;
     private MetaBox $metabox;
     private KeychainController $keychain;
+    private ChainLinks $chainLinks;
 
     private bool $booted = false;
 
@@ -51,6 +53,7 @@ final class Plugin {
         $this->settingsPage = new SettingsPage( $this->connectors, $this->settingsRepo );
         $this->metabox      = new MetaBox( $this->connectors, $publisher );
         $this->keychain     = new KeychainController( $publisher );
+        $this->chainLinks   = new ChainLinks( $this->connectors, new PostState() );
     }
 
     public static function instance(): self {
@@ -78,6 +81,7 @@ final class Plugin {
 
         $this->queue->register();
         $this->controller->register();
+        $this->chainLinks->register();
 
         if ( is_admin() ) {
             $this->settingsPage->register();

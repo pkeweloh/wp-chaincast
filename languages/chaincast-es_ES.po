@@ -36,6 +36,10 @@ msgstr "Cuenta"
 msgid "account"
 msgstr "cuenta"
 
+#. translators: %s: chain name, rendered as a link (e.g. Hive).
+msgid "Also published on %s."
+msgstr "También publicado en %s."
+
 msgid "Add beneficiary"
 msgstr "Añadir beneficiario"
 
