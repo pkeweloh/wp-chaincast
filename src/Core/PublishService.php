@@ -34,12 +34,12 @@ final class PublishService {
     public function publishNow( int $postId, string $connectorId ): PublishResult {
         $connector = $this->connectors->get( $connectorId );
         if ( null === $connector ) {
-            return PublishResult::failure( 'Conector no registrado: ' . $connectorId );
+            return PublishResult::failure( 'Connector not registered: ' . $connectorId );
         }
 
         $post = get_post( $postId );
         if ( null === $post ) {
-            return PublishResult::failure( 'La entrada ya no existe.' );
+            return PublishResult::failure( 'The post no longer exists.' );
         }
 
         // Reuse the already-assigned permlink (idempotency on edits).
@@ -53,7 +53,7 @@ final class PublishService {
             $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ) );
             $result  = $connector->publish( $payload );
         } catch ( Throwable $e ) {
-            $message = 'Excepción al publicar: ' . $e->getMessage();
+            $message = 'Exception while publishing: ' . $e->getMessage();
             $this->log->record( $postId, $connectorId, $action, false, $message );
             return PublishResult::failure( $message );
         }
@@ -101,7 +101,7 @@ final class PublishService {
     public function confirmExternal( int $postId, string $connectorId, string $permlink, string $txId ): PublishResult {
         $connector = $this->connectors->get( $connectorId );
         if ( null === $connector ) {
-            return PublishResult::failure( 'Conector no registrado: ' . $connectorId );
+            return PublishResult::failure( 'Connector not registered: ' . $connectorId );
         }
 
         $base   = $connector->confirmExternalBroadcast( $permlink );

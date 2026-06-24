@@ -180,7 +180,7 @@ final class Serializer {
      */
     public function varuint32( int $value ): self {
         if ( $value < 0 ) {
-            throw new InvalidArgumentException( 'varuint32 no admite negativos.' );
+            throw new InvalidArgumentException( 'varuint32 does not accept negatives.' );
         }
         do {
             $byte  = $value & 0x7F;
@@ -214,7 +214,7 @@ final class Serializer {
             new DateTimeZone( 'UTC' )
         );
         if ( false === $dt ) {
-            throw new InvalidArgumentException( "Fecha inválida: $iso" );
+            throw new InvalidArgumentException( "Invalid date: $iso" );
         }
         return $this->uint32( $dt->getTimestamp() );
     }
@@ -229,7 +229,7 @@ final class Serializer {
      */
     public function operation( string $name, array $fields ): self {
         if ( ! isset( self::OPERATIONS[ $name ] ) ) {
-            throw new InvalidArgumentException( "Operación no soportada: $name" );
+            throw new InvalidArgumentException( "Unsupported operation: $name" );
         }
 
         [ $opId, $schema ] = self::OPERATIONS[ $name ];
@@ -237,7 +237,7 @@ final class Serializer {
 
         foreach ( $schema as [ $field, $type ] ) {
             if ( ! array_key_exists( $field, $fields ) ) {
-                throw new InvalidArgumentException( "Falta el campo '$field' en la operación '$name'." );
+                throw new InvalidArgumentException( "Missing field '$field' in operation '$name'." );
             }
             $this->writeTyped( $type, $fields[ $field ] );
         }
@@ -279,7 +279,7 @@ final class Serializer {
             'asset'  => $this->asset( (string) $value ),
             'bool'   => $this->boolean( (bool) $value ),
             'comment_options_extensions' => $this->commentOptionsExtensions( is_array( $value ) ? $value : [] ),
-            default  => throw new InvalidArgumentException( "Tipo no soportado: $type" ),
+            default  => throw new InvalidArgumentException( "Unsupported type: $type" ),
         };
     }
 }

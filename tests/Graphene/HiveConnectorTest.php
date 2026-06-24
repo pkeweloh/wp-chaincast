@@ -96,7 +96,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertMatchesRegularExpression( '/^[0-9a-f]{40}$/', (string) $result->txId );
 
         // Captured transaction
-        $this->assertNotNull( $captured, 'No se emitió ninguna transacción.' );
+        $this->assertNotNull( $captured, 'No transaction was emitted.' );
         $op = $captured['operations'][0];
         $this->assertSame( 'comment', $op[0] );
         $this->assertSame( 'skunk1', $op[1]['author'] );
@@ -119,7 +119,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertSame(
             $pubHex,
             ( new Secp256k1() )->recoverPublic( $digest, $captured['signatures'][0] ),
-            'La firma emitida no recupera la clave del firmante.'
+            'The emitted signature does not recover the signer key.'
         );
     }
 
@@ -145,7 +145,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertTrue( $result->success, $result->error ?? '' );
 
         $ops = $captured['operations'];
-        $this->assertCount( 2, $ops, 'Debe emitir comment + comment_options.' );
+        $this->assertCount( 2, $ops, 'Must emit comment + comment_options.' );
         $this->assertSame( 'comment', $ops[0][0] );
         $this->assertSame( 'comment_options', $ops[1][0] );
 
@@ -173,7 +173,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertSame(
             $pubHex,
             ( new Secp256k1() )->recoverPublic( $digest, $captured['signatures'][0] ),
-            'La firma de la tx con beneficiaries no recupera al firmante.'
+            'The beneficiaries tx signature does not recover the signer.'
         );
     }
 
@@ -196,7 +196,7 @@ final class HiveConnectorTest extends TestCase {
 
         $result = $connector->publish( $payload );
         $this->assertTrue( $result->success, $result->error ?? '' );
-        $this->assertCount( 1, $captured['operations'], 'En edición no debe ir comment_options.' );
+        $this->assertCount( 1, $captured['operations'], 'An edit must not include comment_options.' );
         $this->assertSame( 'comment', $captured['operations'][0][0] );
         $this->assertSame( 'ya-existe', $result->ref );
     }

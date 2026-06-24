@@ -32,7 +32,7 @@ final class Vault {
 
     public function __construct( string $masterSecret ) {
         if ( '' === $masterSecret ) {
-            throw new RuntimeException( 'El secreto maestro del Vault no puede estar vacío.' );
+            throw new RuntimeException( 'The Vault master secret cannot be empty.' );
         }
         // Derive to 32 bytes; accepts a secret of any length.
         $this->key = hash( 'sha256', $masterSecret, true );
@@ -87,12 +87,12 @@ final class Vault {
     public function decrypt( string $payload ): string {
         $raw = base64_decode( $payload, true );
         if ( false === $raw || strlen( $raw ) < 1 + self::IV_LEN + self::TAG_LEN ) {
-            throw new RuntimeException( 'Payload del Vault inválido o truncado.' );
+            throw new RuntimeException( 'Invalid or truncated Vault payload.' );
         }
 
         $version = $raw[0];
         if ( self::VERSION !== $version ) {
-            throw new RuntimeException( 'Versión de payload del Vault no soportada.' );
+            throw new RuntimeException( 'Unsupported Vault payload version.' );
         }
 
         $iv         = substr( $raw, 1, self::IV_LEN );
@@ -109,7 +109,7 @@ final class Vault {
         );
 
         if ( false === $plaintext ) {
-            throw new RuntimeException( 'Fallo al descifrar en el Vault (¿dato manipulado o clave incorrecta?).' );
+            throw new RuntimeException( 'Vault decryption failed (tampered data or wrong key?).' );
         }
 
         return $plaintext;

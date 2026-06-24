@@ -65,7 +65,7 @@ final class Secp256k1 {
             return bin2hex( chr( $header ) . $rs );
         }
 
-        throw new RuntimeException( 'No se obtuvo una firma canónica tras ' . self::MAX_ATTEMPTS . ' intentos.' );
+        throw new RuntimeException( 'No canonical signature obtained after ' . self::MAX_ATTEMPTS . ' attempts.' );
     }
 
     /**
@@ -107,7 +107,7 @@ final class Secp256k1 {
     private function splitCompact( string $compactHex ): array {
         $bin = hex2bin( $compactHex );
         if ( false === $bin || 65 !== strlen( $bin ) ) {
-            throw new RuntimeException( 'Firma compacta inválida (se esperaban 65 bytes).' );
+            throw new RuntimeException( 'Invalid compact signature (65 bytes expected).' );
         }
 
         $header   = ord( $bin[0] );

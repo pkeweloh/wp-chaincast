@@ -20,7 +20,7 @@ final class SerializerTest extends TestCase {
 
     public static function setUpBeforeClass(): void {
         $json = file_get_contents( __DIR__ . '/../fixtures/golden-vectors.json' );
-        self::assertNotFalse( $json, 'No se pudo leer golden-vectors.json' );
+        self::assertNotFalse( $json, 'Could not read golden-vectors.json' );
         self::$vectors = json_decode( $json, true, 512, JSON_THROW_ON_ERROR );
     }
 
@@ -71,7 +71,7 @@ final class SerializerTest extends TestCase {
         $this->assertSame(
             $vector['serialized'],
             $serializer->hex(),
-            "La serialización de '$key' no coincide con el vector golden."
+            "Serialization of '$key' does not match the golden vector."
         );
     }
 
@@ -86,7 +86,7 @@ final class SerializerTest extends TestCase {
 
         $digest = hash( 'sha256', hex2bin( $chainId . $vector['serialized'] ) );
 
-        $this->assertSame( $vector['digest'], $digest, "Digest de '$key' incorrecto." );
+        $this->assertSame( $vector['digest'], $digest, "Digest of '$key' is incorrect." );
     }
 
     /**

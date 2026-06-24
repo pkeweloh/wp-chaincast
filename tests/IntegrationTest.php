@@ -35,11 +35,11 @@ final class IntegrationTest extends TestCase {
             [ [ $op[0], $op[1] ] ]
         );
 
-        $this->assertSame( $vector['serialized'], $ser->hex(), 'Serialización divergente del vector.' );
+        $this->assertSame( $vector['serialized'], $ser->hex(), 'Serialization diverges from the vector.' );
 
         // 2) Digest = sha256(chain_id + tx).
         $digest = hash( 'sha256', hex2bin( $chainId . $ser->hex() ) );
-        $this->assertSame( $vector['digest'], $digest, 'Digest divergente del vector.' );
+        $this->assertSame( $vector['digest'], $digest, 'Digest diverges from the vector.' );
 
         // 3) Sign with the test WIF.
         $key     = PrivateKey::fromWif( $v['meta']['test_priv_wif'] );

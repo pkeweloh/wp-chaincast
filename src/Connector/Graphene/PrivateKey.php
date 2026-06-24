@@ -29,7 +29,7 @@ final class PrivateKey {
     /** Creates from a 32-byte hex key (64 characters). */
     public static function fromHex( string $hex ): self {
         if ( ! preg_match( '/^[0-9a-fA-F]{64}$/', $hex ) ) {
-            throw new InvalidArgumentException( 'La clave privada hex debe tener 64 caracteres.' );
+            throw new InvalidArgumentException( 'The hex private key must be 64 characters.' );
         }
         return new self( strtolower( $hex ) );
     }
@@ -39,7 +39,7 @@ final class PrivateKey {
         $decoded = ( new Base58() )->decode( $wif );
 
         if ( strlen( $decoded ) !== 37 ) {
-            throw new InvalidArgumentException( 'WIF inválida: longitud inesperada.' );
+            throw new InvalidArgumentException( 'Invalid WIF: unexpected length.' );
         }
 
         $payload  = substr( $decoded, 0, 33 );   // 0x80 + key(32).
@@ -47,11 +47,11 @@ final class PrivateKey {
 
         $expected = substr( hex2bin( hash( 'sha256', hex2bin( hash( 'sha256', $payload ) ) ) ), 0, 4 );
         if ( ! hash_equals( $expected, $checksum ) ) {
-            throw new InvalidArgumentException( 'WIF inválida: checksum incorrecto.' );
+            throw new InvalidArgumentException( 'Invalid WIF: bad checksum.' );
         }
 
         if ( "\x80" !== $payload[0] ) {
-            throw new InvalidArgumentException( 'WIF inválida: prefijo de red incorrecto.' );
+            throw new InvalidArgumentException( 'Invalid WIF: wrong network prefix.' );
         }
 
         return new self( bin2hex( substr( $payload, 1, 32 ) ) );

@@ -72,29 +72,29 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
 
     public function validateCredentials(): Result {
         if ( ! $this->isConfigured() ) {
-            return Result::fail( 'Falta la cuenta de autor.' );
+            return Result::fail( 'Missing author account.' );
         }
         if ( ! $this->supportsAutomatic() ) {
-            return Result::fail( 'Modo automático no disponible (sin Vault o sin posting key).' );
+            return Result::fail( 'Automatic mode unavailable (no Vault or no posting key).' );
         }
 
         try {
             $priv   = $this->decryptKey();
             $derived = $priv->publicKey( $this->addressPrefix() )->toString();
         } catch ( Throwable $e ) {
-            return Result::fail( 'No se pudo descifrar/derivar la clave: ' . $e->getMessage() );
+            return Result::fail( 'Could not decrypt/derive the key: ' . $e->getMessage() );
         }
 
         // Check the derived public key is in the account's posting authority.
         try {
             $accounts = $this->rpc->call( 'condenser_api.get_accounts', [ [ $this->config->author ] ] );
         } catch ( RpcException $e ) {
-            return Result::fail( 'No se pudo consultar la cuenta: ' . $this->rpcDetail( $e ) );
+            return Result::fail( 'Could not query the account: ' . $this->rpcDetail( $e ) );
         }
 
         $postingKeys = $this->extractPostingKeys( is_array( $accounts ) ? ( $accounts[0] ?? [] ) : [] );
         if ( ! in_array( $derived, $postingKeys, true ) ) {
-            return Result::fail( 'La posting key no coincide con la autoridad de la cuenta.' );
+            return Result::fail( 'The posting key does not match the account authority.' );
         }
 
         return Result::ok( [ 'public_key' => $derived ] );
@@ -102,13 +102,13 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
 
     public function publish( PostPayload $post ): PublishResult {
         if ( ! $this->supportsAutomatic() ) {
-            return PublishResult::failure( 'Modo automático no disponible para ' . $this->id() . '.' );
+            return PublishResult::failure( 'Automatic mode unavailable for ' . $this->id() . '.' );
         }
 
         try {
             $priv = $this->decryptKey();
         } catch ( Throwable $e ) {
-            return PublishResult::failure( 'Posting key inutilizable: ' . $e->getMessage() );
+            return PublishResult::failure( 'Unusable posting key: ' . $e->getMessage() );
         }
 
         $permlink = $this->permlinkFor( $post );
@@ -119,7 +119,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $expiration = $this->expiration( $props );
         } catch ( RpcException $e ) {
             // Node failure: retryable.
-            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $this->rpcDetail( $e ), true );
+            return PublishResult::failure( 'Could not fetch global properties: ' . $this->rpcDetail( $e ), true );
         }
 
         $ops = [
@@ -150,7 +150,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         } catch ( RpcException $e ) {
             // Telling a network error (retryable) from a chain rejection is not
             // trivial here; treat as retryable unless there is evidence otherwise.
-            return PublishResult::failure( 'Broadcast falló: ' . $this->rpcDetail( $e ), true );
+            return PublishResult::failure( 'Broadcast failed: ' . $this->rpcDetail( $e ), true );
         }
 
         return PublishResult::success(
@@ -166,13 +166,13 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
      */
     public function deletePost( string $permlink ): PublishResult {
         if ( ! $this->supportsAutomatic() ) {
-            return PublishResult::failure( 'Modo automático no disponible para ' . $this->id() . '.' );
+            return PublishResult::failure( 'Automatic mode unavailable for ' . $this->id() . '.' );
         }
 
         try {
             $priv = $this->decryptKey();
         } catch ( Throwable $e ) {
-            return PublishResult::failure( 'Posting key inutilizable: ' . $e->getMessage() );
+            return PublishResult::failure( 'Unusable posting key: ' . $e->getMessage() );
         }
 
         try {
@@ -180,7 +180,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $ref        = RpcClient::referenceBlock( $props );
             $expiration = $this->expiration( $props );
         } catch ( RpcException $e ) {
-            return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $this->rpcDetail( $e ), true );
+            return PublishResult::failure( 'Could not fetch global properties: ' . $this->rpcDetail( $e ), true );
         }
 
         $ops = [
@@ -198,7 +198,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         try {
             $this->rpc->broadcastTransaction( $signedTx['tx'] );
         } catch ( RpcException $e ) {
-            return PublishResult::failure( 'Borrado falló: ' . $this->rpcDetail( $e ), true );
+            return PublishResult::failure( 'Delete failed: ' . $this->rpcDetail( $e ), true );
         }
 
         return PublishResult::success( $permlink, $this->postUrl( $this->config->author, $permlink ), $signedTx['trx_id'] );

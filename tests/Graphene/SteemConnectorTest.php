@@ -96,7 +96,7 @@ final class SteemConnectorTest extends TestCase {
         $this->assertSame(
             $pubHex,
             ( new Secp256k1() )->recoverPublic( $digest, $captured['signatures'][0] ),
-            'La firma no valida contra el chain_id de Steem.'
+            'The signature does not validate against Steem chain_id.'
         );
     }
 }

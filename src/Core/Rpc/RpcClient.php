@@ -26,7 +26,7 @@ final class RpcClient {
         private int $timeout = 10,
     ) {
         if ( empty( $this->nodes ) ) {
-            throw new \InvalidArgumentException( 'RpcClient requiere al menos un nodo.' );
+            throw new \InvalidArgumentException( 'RpcClient requires at least one node.' );
         }
     }
 
@@ -55,7 +55,7 @@ final class RpcClient {
             try {
                 $response = $this->transport->postJson( $node, $payload, $this->timeout );
             } catch ( TransportException $e ) {
-                $errors[ $node ] = 'transporte: ' . $e->getMessage();
+                $errors[ $node ] = 'transport: ' . $e->getMessage();
                 continue;
             }
 
@@ -66,7 +66,7 @@ final class RpcClient {
 
             $decoded = json_decode( $response['body'], true );
             if ( ! is_array( $decoded ) ) {
-                $errors[ $node ] = 'respuesta no-JSON';
+                $errors[ $node ] = 'non-JSON response';
                 continue;
             }
 
@@ -82,7 +82,7 @@ final class RpcClient {
         }
 
         throw new RpcException(
-            sprintf( 'Todos los nodos fallaron para "%s".', $method ),
+            sprintf( 'All nodes failed for "%s".', $method ),
             $errors
         );
     }

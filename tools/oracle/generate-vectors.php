@@ -135,7 +135,7 @@ $vectors = [
         'test_priv_hex' => $testPrivHex,
         'test_priv_wif' => $privKey->stringKey,
         'test_pub_key'  => $pubKey->stringKey ?? (string) $pubKey,
-        'note'          => 'Clave de PRUEBA fija. Vectores deterministas para validar nuestra serialización/firma.',
+        'note'          => 'Fixed TEST key. Deterministic vectors to validate our serialization/signing.',
     ],
     'comment_post'              => makeVector( $serializer, $privKey, $txParams, $commentOp ),
     'comment_utf8'              => makeVector( $serializer, $privKey, $txParams, $utf8Op ),
@@ -149,7 +149,7 @@ if ( ! is_dir( $outDir ) ) {
 $outFile = $outDir . '/golden-vectors.json';
 file_put_contents( $outFile, json_encode( $vectors, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "\n" );
 
-echo "Vectores escritos en: $outFile\n";
-echo "Clave pública de prueba: " . ( $vectors['meta']['test_pub_key'] ) . "\n";
-echo "comment_post.serialized (primeros 80 hex): " . substr( $vectors['comment_post']['serialized'], 0, 80 ) . "\n";
+echo "Vectors written to: $outFile\n";
+echo "Test public key: " . ( $vectors['meta']['test_pub_key'] ) . "\n";
+echo "comment_post.serialized (first 80 hex): " . substr( $vectors['comment_post']['serialized'], 0, 80 ) . "\n";
 echo "comment_post.signature: " . $vectors['comment_post']['signature'] . "\n";

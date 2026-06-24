@@ -17,7 +17,7 @@ final class CurlHttpTransport implements HttpTransport {
     public function postJson( string $url, string $body, int $timeout ): array {
         $ch = curl_init( $url );
         if ( false === $ch ) {
-            throw new TransportException( 'No se pudo inicializar cURL.' );
+            throw new TransportException( 'Could not initialize cURL.' );
         }
 
         curl_setopt_array(

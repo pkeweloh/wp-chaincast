@@ -66,7 +66,7 @@ final class RpcClientTest extends TestCase {
 
         try {
             $client->call( 'x' );
-            $this->fail( 'Se esperaba RpcException.' );
+            $this->fail( 'Expected RpcException.' );
         } catch ( RpcException $e ) {
             $this->assertCount( 2, $e->nodeErrors() );
         }

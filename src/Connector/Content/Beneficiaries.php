@@ -53,25 +53,25 @@ final class Beneficiaries {
 
             $parts = explode( ':', $entry );
             if ( 2 !== count( $parts ) ) {
-                throw new InvalidArgumentException( "Formato inválido en '$entry' (usa cuenta:porcentaje)." );
+                throw new InvalidArgumentException( "Invalid format in '$entry' (use account:percent)." );
             }
 
             $account = strtolower( trim( $parts[0] ) );
             $percent = trim( $parts[1] );
 
             if ( ! self::isValidAccount( $account ) ) {
-                throw new InvalidArgumentException( "Cuenta inválida: '$account'." );
+                throw new InvalidArgumentException( "Invalid account: '$account'." );
             }
             if ( isset( $result[ $account ] ) ) {
-                throw new InvalidArgumentException( "Cuenta repetida: '$account'." );
+                throw new InvalidArgumentException( "Duplicate account: '$account'." );
             }
             if ( ! is_numeric( $percent ) ) {
-                throw new InvalidArgumentException( "Porcentaje inválido para '$account': '$percent'." );
+                throw new InvalidArgumentException( "Invalid percent for '$account': '$percent'." );
             }
 
             $weight = (int) round( (float) $percent * 100 );
             if ( $weight <= 0 || $weight > self::TOTAL_WEIGHT ) {
-                throw new InvalidArgumentException( "Porcentaje fuera de rango (0–100) para '$account'." );
+                throw new InvalidArgumentException( "Percent out of range (0 to 100) for '$account'." );
             }
 
             $result[ $account ] = $weight;
@@ -79,10 +79,10 @@ final class Beneficiaries {
         }
 
         if ( count( $result ) > self::MAX_BENEFICIARIES ) {
-            throw new InvalidArgumentException( 'Máximo ' . self::MAX_BENEFICIARIES . ' beneficiaries.' );
+            throw new InvalidArgumentException( 'At most ' . self::MAX_BENEFICIARIES . ' beneficiaries.' );
         }
         if ( $total > self::TOTAL_WEIGHT ) {
-            throw new InvalidArgumentException( 'La suma de porcentajes no puede superar el 100%.' );
+            throw new InvalidArgumentException( 'The sum of percentages cannot exceed 100%.' );
         }
 
         ksort( $result ); // The chain requires ascending order by account.
