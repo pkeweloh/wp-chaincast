@@ -1,10 +1,6 @@
 <?php
 /**
- * Añade al final de la entrada los enlaces a sus copias en las cadenas.
- *
- * Es el reflejo del pie de atribución que viaja a Hive/Steem: aquí, en el lado
- * de WordPress, se enlaza a las versiones publicadas en cada cadena. Solo se
- * muestran las cadenas en las que la entrada está efectivamente publicada.
+ * Appends links to the post's blockchain copies (Hive/Steem) after the content.
  *
  * @package Chaincast\Frontend
  */
@@ -28,12 +24,9 @@ final class ChainLinks {
         add_filter( 'the_content', [ $this, 'append' ], 20 );
     }
 
-    /**
-     * Engancha en `the_content`. Solo actúa en la vista individual de la entrada
-     * dentro del bucle principal, para no contaminar feeds, extractos ni listados.
-     */
     public function append( string $content ): string {
-        if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
+        // Main-loop full content only: skip feeds and secondary queries.
+        if ( is_feed() || ! in_the_loop() || ! is_main_query() ) {
             return $content;
         }
 
