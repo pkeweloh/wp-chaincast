@@ -1,10 +1,10 @@
 <?php
 /**
- * Cliente JSON-RPC para nodos graphene (Hive/Steem) con failover.
+ * JSON-RPC client for graphene nodes (Hive/Steem) with failover.
  *
- * Recorre la lista de nodos en orden; ante fallo de red o error del nodo, pasa
- * al siguiente. Solo si todos fallan lanza RpcException con el detalle por nodo.
- * Es agnóstico de la cadena: la lista de nodos y el método los pone el conector.
+ * Walks the node list in order; on a network failure or node error it moves to
+ * the next. Only if all fail does it throw RpcException with the per-node detail.
+ * Chain-agnostic: the node list and the method are supplied by the connector.
  *
  * @package Chaincast\Core\Rpc
  */
@@ -16,9 +16,9 @@ namespace Chaincast\Core\Rpc;
 final class RpcClient {
 
     /**
-     * @param string[]      $nodes     URLs de los nodos, por orden de preferencia.
-     * @param HttpTransport $transport Transporte HTTP (WP por defecto en producción).
-     * @param int           $timeout   Timeout por nodo en segundos.
+     * @param string[]      $nodes     Node URLs, in order of preference.
+     * @param HttpTransport $transport HTTP transport (WP by default in production).
+     * @param int           $timeout   Per-node timeout in seconds.
      */
     public function __construct(
         private array $nodes,
@@ -31,13 +31,13 @@ final class RpcClient {
     }
 
     /**
-     * Llama a un método JSON-RPC con failover. Devuelve el campo `result`.
+     * Calls a JSON-RPC method with failover. Returns the `result` field.
      *
      * @param array<int|string,mixed> $params
      *
      * @return mixed
      *
-     * @throws RpcException Si todos los nodos fallan.
+     * @throws RpcException If all nodes fail.
      */
     public function call( string $method, array $params = [] ): mixed {
         $payload = wp_json_encode_compat(
@@ -71,9 +71,9 @@ final class RpcClient {
             }
 
             if ( isset( $decoded['error'] ) ) {
-                // Error de la propia red (p. ej. tx inválida). No suele resolverse
-                // probando otro nodo, pero se acumula y se intenta el siguiente por
-                // si fuese un nodo concreto el problemático.
+                // A network-level error (e.g. invalid tx). Trying another node
+                // rarely helps, but we accumulate it and try the next one in case
+                // the problem was a specific node.
                 $errors[ $node ] = 'RPC: ' . $this->stringifyError( $decoded['error'] );
                 continue;
             }
@@ -88,7 +88,7 @@ final class RpcClient {
     }
 
     /**
-     * Propiedades dinámicas globales (para ref_block_num / prefix / expiración).
+     * Dynamic global properties (for ref_block_num / prefix / expiration).
      *
      * @return array<string,mixed>
      */
@@ -99,7 +99,7 @@ final class RpcClient {
     }
 
     /**
-     * Emite una transacción firmada.
+     * Broadcasts a signed transaction.
      *
      * @param array<string,mixed> $signedTx
      *
@@ -110,8 +110,8 @@ final class RpcClient {
     }
 
     /**
-     * Calcula ref_block_num y ref_block_prefix a partir de las propiedades globales,
-     * igual que el resto de clientes graphene.
+     * Computes ref_block_num and ref_block_prefix from the global properties,
+     * like the other graphene clients.
      *
      * @param array<string,mixed> $props
      *
@@ -123,7 +123,7 @@ final class RpcClient {
 
         $prefix = 0;
         if ( strlen( $headId ) >= 16 ) {
-            // Los bytes 4..7 del block id, leídos como uint32 little-endian.
+            // Bytes 4..7 of the block id, read as little-endian uint32.
             $bytes  = hex2bin( substr( $headId, 8, 8 ) );
             $prefix = false !== $bytes ? unpack( 'V', $bytes )[1] : 0;
         }
@@ -143,7 +143,7 @@ final class RpcClient {
 }
 
 /**
- * `json_encode` que funciona dentro y fuera de WordPress.
+ * `json_encode` that works inside and outside WordPress.
  *
  * @param mixed $data
  */

@@ -1,16 +1,16 @@
 <?php
 /**
- * Parseo y validación de beneficiaries para graphene (Hive/Steem).
+ * Parsing and validation of graphene beneficiaries (Hive/Steem).
  *
- * Formato de entrada (texto del usuario): "cuenta:porcentaje, cuenta2:porcentaje".
- * El porcentaje admite decimales (p. ej. 2.5). Internamente se convierte a "weight"
- * en puntos base (centésimas de %): 100% = 10000, 5% = 500, 2.5% = 250.
+ * Input format (user text): "account:percent, account2:percent". The percent
+ * allows decimals (e.g. 2.5). Internally it is converted to a "weight" in basis
+ * points (hundredths of a %): 100% = 10000, 5% = 500, 2.5% = 250.
  *
- * Reglas de la cadena que validamos aquí:
- *  - máximo 8 beneficiaries,
- *  - sin cuentas repetidas,
- *  - suma de pesos <= 10000 (el resto se queda para el autor),
- *  - lista ORDENADA por cuenta ascendente (la cadena lo exige).
+ * Chain rules we validate here:
+ *  - at most 8 beneficiaries,
+ *  - no repeated accounts,
+ *  - sum of weights <= 10000 (the rest stays with the author),
+ *  - list SORTED by account ascending (the chain requires it).
  *
  * @package Chaincast\Connector\Content
  */
@@ -23,18 +23,18 @@ use InvalidArgumentException;
 
 final class Beneficiaries {
 
-    /** Límite de la cadena. */
+    /** Chain limit. */
     private const MAX_BENEFICIARIES = 8;
 
-    /** 100% en puntos base. */
+    /** 100% in basis points. */
     private const TOTAL_WEIGHT = 10000;
 
     /**
-     * Convierte el texto del usuario en una lista normalizada y validada.
+     * Converts the user text into a normalized, validated list.
      *
-     * @return array<int,array{account:string,weight:int}> Ordenada por cuenta. Vacía si la entrada está vacía.
+     * @return array<int,array{account:string,weight:int}> Sorted by account. Empty if the input is empty.
      *
-     * @throws InvalidArgumentException Si algún campo es inválido (cuenta, porcentaje, suma o límite).
+     * @throws InvalidArgumentException If any field is invalid (account, percent, sum or limit).
      */
     public static function parse( string $spec ): array {
         $spec = trim( $spec );
@@ -85,7 +85,7 @@ final class Beneficiaries {
             throw new InvalidArgumentException( 'La suma de porcentajes no puede superar el 100%.' );
         }
 
-        ksort( $result ); // La cadena exige orden ascendente por cuenta.
+        ksort( $result ); // The chain requires ascending order by account.
 
         $list = [];
         foreach ( $result as $account => $weight ) {
@@ -95,8 +95,8 @@ final class Beneficiaries {
     }
 
     /**
-     * Como parse() pero nunca lanza: devuelve [] si la entrada es inválida.
-     * Para el camino de publicación (no debe romper por una mala config).
+     * Like parse() but never throws: returns [] if the input is invalid.
+     * For the publish path (a bad config must not break it).
      *
      * @return array<int,array{account:string,weight:int}>
      */
@@ -108,7 +108,7 @@ final class Beneficiaries {
         }
     }
 
-    /** Nombre de cuenta graphene: 3–16 chars, segmentos a-z0-9- separados por puntos. */
+    /** Graphene account name: 3 to 16 chars, a-z0-9- segments separated by dots. */
     private static function isValidAccount( string $account ): bool {
         return 1 === preg_match( '/^(?=.{3,16}$)[a-z][a-z0-9\-]*(\.[a-z][a-z0-9\-]*)*$/', $account );
     }

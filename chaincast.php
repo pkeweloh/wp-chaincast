@@ -20,7 +20,7 @@ declare(strict_types=1);
 namespace Chaincast;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // No acceso directo.
+    exit; // No direct access.
 }
 
 const VERSION     = '0.1.0-dev';
@@ -29,14 +29,14 @@ const PLUGIN_DIR   = __DIR__;
 const MIN_PHP      = '8.1';
 
 /**
- * Carga el autoloader (Composer si existe; si no, un fallback PSR-4 propio
- * para que al menos las clases del plugin se resuelvan).
+ * Loads the autoloader (Composer if present; otherwise our own PSR-4 fallback so
+ * at least the plugin classes resolve).
  */
 require_once __DIR__ . '/src/autoload.php';
 
 /**
- * Comprueba requisitos mínimos y muestra un aviso en vez de provocar un fatal
- * en hostings antiguos.
+ * Checks minimum requirements and shows a notice instead of causing a fatal on
+ * old hosting.
  */
 function check_requirements(): bool {
     if ( version_compare( PHP_VERSION, MIN_PHP, '<' ) ) {
@@ -60,8 +60,8 @@ function check_requirements(): bool {
 }
 
 /**
- * Arranque del plugin tras cargar todos los plugins (para que Action Scheduler,
- * si viene de otro plugin como WooCommerce, ya esté disponible).
+ * Boots the plugin after all plugins are loaded (so Action Scheduler, if it comes
+ * from another plugin like WooCommerce, is already available).
  */
 function bootstrap(): void {
     load_plugin_textdomain(
@@ -78,6 +78,6 @@ function bootstrap(): void {
 }
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\bootstrap' );
 
-// Hooks de activación / desactivación (registro de la cola, limpieza).
+// Activation / deactivation hooks (queue registration, cleanup).
 register_activation_hook( __FILE__, [ Core\Plugin::class, 'on_activate' ] );
 register_deactivation_hook( __FILE__, [ Core\Plugin::class, 'on_deactivate' ] );

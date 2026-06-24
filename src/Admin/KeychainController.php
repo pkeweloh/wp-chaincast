@@ -1,10 +1,10 @@
 <?php
 /**
- * Modo asistido con Hive Keychain.
+ * Assisted mode with Hive Keychain.
  *
- * Encola el JS del editor y atiende dos peticiones AJAX:
- *  - request: devuelve la operación a firmar (sin clave, sin red).
- *  - confirm: registra el broadcast que hizo el navegador (permlink + tx id).
+ * Enqueues the editor JS and serves two AJAX requests:
+ *  - request: returns the operation to sign (no key, no network).
+ *  - confirm: records the broadcast the browser made (permlink + tx id).
  *
  * @package Chaincast\Admin
  */

@@ -1,11 +1,11 @@
 <?php
 /**
- * Lógica común de los conectores graphene (Hive y Steem).
+ * Shared logic for the graphene connectors (Hive and Steem).
  *
- * Implementa el flujo de publicación automática: obtiene el bloque de referencia
- * de un nodo, construye la comment op a partir del PostPayload, serializa, firma
- * y emite con failover. Las subclases solo aportan lo específico de cada cadena:
- * chain_id, prefijo de direcciones, nodos por defecto y dominio de URL.
+ * Implements the automatic publishing flow: fetches the reference block from a
+ * node, builds the comment op from the PostPayload, serializes, signs and
+ * broadcasts with failover. Subclasses only supply the chain-specific parts:
+ * chain_id, address prefix, default nodes and URL domain.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -28,7 +28,7 @@ use Chaincast\Core\Rpc\RpcException;
 
 abstract class AbstractGrapheneConnector implements ConnectorInterface {
 
-    /** 100% en puntos base (percent_hbd/percent_steem_dollars de comment_options). */
+    /** 100% in basis points (percent_hbd/percent_steem_dollars of comment_options). */
     private const FULL_PERCENT = 10000;
 
     public function __construct(
@@ -41,16 +41,16 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     ) {
     }
 
-    // ---- Específico de cada cadena ----
+    // Chain-specific
 
     abstract protected function chainId(): string;
 
-    /** Prefijo de direcciones (ambas cadenas usan 'STM' para claves públicas). */
+    /** Address prefix (both chains use 'STM' for public keys). */
     abstract protected function addressPrefix(): string;
 
     abstract protected function postUrl( string $author, string $permlink ): string;
 
-    // ---- ConnectorInterface ----
+    // ConnectorInterface
 
     public function isConfigured(): bool {
         return '' !== $this->config->author;
@@ -63,8 +63,8 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     }
 
     /**
-     * Hive → 'hive_keychain', Steem → 'steem_keychain' (convención de ambas
-     * extensiones, que son forks la una de la otra).
+     * Hive: 'hive_keychain', Steem: 'steem_keychain' (the convention of both
+     * extensions, which are forks of each other).
      */
     public function keychainExtension(): ?string {
         return $this->id() . '_keychain';
@@ -85,7 +85,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             return Result::fail( 'No se pudo descifrar/derivar la clave: ' . $e->getMessage() );
         }
 
-        // Comprueba que la clave pública derivada figure en la posting authority de la cuenta.
+        // Check the derived public key is in the account's posting authority.
         try {
             $accounts = $this->rpc->call( 'condenser_api.get_accounts', [ [ $this->config->author ] ] );
         } catch ( RpcException $e ) {
@@ -118,7 +118,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             $ref        = RpcClient::referenceBlock( $props );
             $expiration = $this->expiration( $props );
         } catch ( RpcException $e ) {
-            // Fallo de nodo: es reintentable.
+            // Node failure: retryable.
             return PublishResult::failure( 'No se pudieron obtener propiedades globales: ' . $this->rpcDetail( $e ), true );
         }
 
@@ -137,7 +137,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             ],
         ];
 
-        // Beneficiaries (reparto de recompensas) solo al CREAR el post.
+        // Beneficiaries (reward split) only when CREATING the post.
         $beneficiariesOp = $this->beneficiariesOp( $post, $permlink );
         if ( null !== $beneficiariesOp ) {
             $ops[] = $beneficiariesOp;
@@ -148,8 +148,8 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         try {
             $this->rpc->broadcastTransaction( $signedTx['tx'] );
         } catch ( RpcException $e ) {
-            // Distinguir error de red (reintentable) de rechazo de la cadena no es
-            // trivial aquí; tratamos como reintentable salvo evidencia en contra.
+            // Telling a network error (retryable) from a chain rejection is not
+            // trivial here; treat as retryable unless there is evidence otherwise.
             return PublishResult::failure( 'Broadcast falló: ' . $this->rpcDetail( $e ), true );
         }
 
@@ -161,8 +161,8 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     }
 
     /**
-     * Borra un post/comentario propio de la cadena (op delete_comment).
-     * Solo funciona si el post no tiene votos ni respuestas.
+     * Deletes one of our own posts/comments from the chain (delete_comment op).
+     * Only works if the post has no votes and no replies.
      */
     public function deletePost( string $permlink ): PublishResult {
         if ( ! $this->supportsAutomatic() ) {
@@ -205,8 +205,8 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     }
 
     public function buildSigningRequest( PostPayload $post ): array {
-        // Modo asistido (Keychain): la extensión serializa, así que enviamos las
-        // ops con los nombres de campo del broadcast.
+        // Assisted mode (Keychain): the extension serializes, so we send the ops
+        // with the broadcast field names.
         $permlink = $this->permlinkFor( $post );
 
         $operations = [
@@ -237,10 +237,11 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     }
 
     /**
-     * Construye la op comment_options con beneficiaries, SOLO si es un post nuevo
-     * (no edición) y hay beneficiaries. La cadena solo admite fijarlos al crear el
-     * post. Devuelve campos separados para serializar (clave de % fija, posicional)
-     * y para el broadcast (nombre de campo y símbolo del asset según la cadena).
+     * Builds the comment_options op with beneficiaries, ONLY for a new post (not
+     * an edit) and when there are beneficiaries. The chain only allows setting
+     * them when creating the post. Returns separate fields for serialization
+     * (fixed positional % key) and for the broadcast (field name and asset symbol
+     * depend on the chain).
      *
      * @return array{name:string,serialize:array<string,mixed>,broadcast:array<string,mixed>}|null
      */
@@ -266,35 +267,35 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         ];
     }
 
-    /** Un post es nuevo (creación) si aún no tiene permlink asignado en la cadena. */
+    /** A post is new (creation) when it has no permlink assigned on the chain yet. */
     protected function isNewPost( PostPayload $post ): bool {
         return '' === (string) ( $post->extra['permlink'] ?? '' );
     }
 
-    /** Símbolo del dólar de la cadena para el JSON del broadcast. Hive: HBD; Steem lo sobreescribe. */
+    /** Chain dollar symbol for the broadcast JSON. Hive: HBD; Steem overrides it. */
     protected function backingSymbol(): string {
         return 'HBD';
     }
 
-    /** Campo de % de comment_options en el broadcast. Hive: percent_hbd; Steem lo sobreescribe. */
+    /** comment_options % field in the broadcast. Hive: percent_hbd; Steem overrides it. */
     protected function percentField(): string {
         return 'percent_hbd';
     }
 
     public function confirmExternalBroadcast( string $ref ): PublishResult {
-        // El navegador ya emitió; registramos el permlink y construimos la URL.
+        // The browser already broadcast; record the permlink and build the URL.
         return PublishResult::success( $ref, $this->postUrl( $this->config->author, $ref ) );
     }
 
-    // ---- Internos ----
+    // Internals
 
     /**
-     * Construye y firma la transacción (una o varias ops). Devuelve el array listo
-     * para broadcast y el trx_id.
+     * Builds and signs the transaction (one or more ops). Returns the array ready
+     * to broadcast and the trx_id.
      *
-     * Cada op trae campos para serializar y, opcionalmente, campos distintos para
-     * el broadcast (algunos campos cambian de nombre/símbolo entre Hive y Steem
-     * aunque serialicen igual, p. ej. percent_hbd vs percent_steem_dollars).
+     * Each op carries fields to serialize and, optionally, different fields for
+     * the broadcast (some fields change name/symbol between Hive and Steem even
+     * though they serialize the same, e.g. percent_hbd vs percent_steem_dollars).
      *
      * @param array{ref_block_num:int,ref_block_prefix:int}                                        $ref
      * @param array<int,array{name:string,serialize:array<string,mixed>,broadcast?:array<string,mixed>}> $ops

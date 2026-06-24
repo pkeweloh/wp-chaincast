@@ -1,10 +1,10 @@
 <?php
 /**
- * Clave pública graphene (formato textual `STM<base58(pubkey+checksum)>`).
+ * Graphene public key (textual format `STM<base58(pubkey+checksum)>`).
  *
- * El checksum son los primeros 4 bytes de RIPEMD-160 de la clave comprimida
- * (33 bytes). El prefijo de dirección depende de la cadena: 'STM' tanto en Hive
- * como en Steem (difieren en chain_id y nodos, no en el prefijo).
+ * The checksum is the first 4 bytes of RIPEMD-160 of the compressed key
+ * (33 bytes). The address prefix depends on the chain: 'STM' on both Hive and
+ * Steem (they differ in chain_id and nodes, not in the prefix).
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -36,7 +36,7 @@ final class PublicKey {
     }
 
     /**
-     * Representación textual: STM + base58(pubkey(33) + ripemd160(pubkey)[:4]).
+     * Textual representation: STM + base58(pubkey(33) + ripemd160(pubkey)[:4]).
      */
     public function toString(): string {
         $raw      = hex2bin( $this->compressedHex );

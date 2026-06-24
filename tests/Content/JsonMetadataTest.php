@@ -25,7 +25,7 @@ final class JsonMetadataTest extends TestCase {
 
     public function testTagsNormalizedAndCappedAtFive(): void {
         $meta = json_decode( ( new JsonMetadata() )->build( $this->payload( [ 'Hive', 'Hive', 'Web 3', 'a', 'b', 'c', 'd' ] ) ), true );
-        // 'Hive' duplicado colapsa, 'Web 3' -> 'web-3', máximo 5.
+        // duplicate 'Hive' collapses, 'Web 3' -> 'web-3', max 5.
         $this->assertSame( [ 'hive', 'web-3', 'a', 'b', 'c' ], $meta['tags'] );
     }
 

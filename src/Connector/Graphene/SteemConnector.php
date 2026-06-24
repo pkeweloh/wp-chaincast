@@ -1,10 +1,10 @@
 <?php
 /**
- * Conector para la blockchain Steem.
+ * Connector for the Steem blockchain.
  *
- * Gemelo de HiveConnector: reutiliza toda la lógica de AbstractGrapheneConnector
- * y solo cambia lo específico de Steem (chain_id, nodos, dominio de URL). El
- * prefijo de direcciones es 'STM', igual que Hive.
+ * Twin of HiveConnector: reuses all of AbstractGrapheneConnector's logic and only
+ * changes Steem's specifics (chain_id, nodes, URL domain). The address prefix is
+ * 'STM', same as Hive.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -15,10 +15,10 @@ namespace Chaincast\Connector\Graphene;
 
 final class SteemConnector extends AbstractGrapheneConnector {
 
-    /** Chain id de Steem (génesis, todo ceros). */
+    /** Steem chain id (genesis, all zeros). */
     private const CHAIN_ID = '0000000000000000000000000000000000000000000000000000000000000000';
 
-    /** Nodos RPC públicos con failover. */
+    /** Public RPC nodes with failover. */
     public const DEFAULT_NODES = [
         'https://api.steemit.com',
         'https://api.steem.fans',
@@ -46,12 +46,12 @@ final class SteemConnector extends AbstractGrapheneConnector {
         return sprintf( 'https://steemit.com/@%s/%s', $author, $permlink );
     }
 
-    /** Steem usa SBD como dólar de la cadena en el JSON del broadcast. */
+    /** Steem uses SBD as the chain dollar in the broadcast JSON. */
     protected function backingSymbol(): string {
         return 'SBD';
     }
 
-    /** En Steem el campo de comment_options se llama percent_steem_dollars. */
+    /** On Steem the comment_options field is named percent_steem_dollars. */
     protected function percentField(): string {
         return 'percent_steem_dollars';
     }

@@ -1,9 +1,9 @@
 <?php
 /**
- * Transporte HTTP falso para tests (sin red).
+ * Fake HTTP transport for tests (no network).
  *
- * A cada URL se le asocia una respuesta fija o un callable que recibe el cuerpo
- * de la petición y devuelve la respuesta — útil para enrutar por método JSON-RPC.
+ * Each URL is mapped to a fixed response or a callable that receives the request
+ * body and returns the response: handy for routing by JSON-RPC method.
  *
  * @package Chaincast\Tests\Support
  */
@@ -19,7 +19,7 @@ final class FakeTransport implements HttpTransport {
     /** @var array<string,callable|array{status:int,body:string}> */
     private array $responses;
 
-    /** @var string[] URLs realmente contactadas, en orden. */
+    /** @var string[] URLs actually contacted, in order. */
     public array $hits = [];
 
     /**
@@ -36,7 +36,7 @@ final class FakeTransport implements HttpTransport {
         return is_callable( $r ) ? $r( $body ) : $r;
     }
 
-    /** Construye un cuerpo de respuesta JSON-RPC con éxito. */
+    /** Builds a successful JSON-RPC response body. */
     public static function okBody( mixed $result ): array {
         return [
             'status' => 200,

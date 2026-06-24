@@ -1,7 +1,7 @@
 <?php
 /**
- * Error de nivel RPC: todos los nodos fallaron, o un nodo devolvió un error
- * JSON-RPC (p. ej. transacción rechazada por la red).
+ * RPC-level error: all nodes failed, or a node returned a JSON-RPC error
+ * (e.g. a transaction rejected by the network).
  *
  * @package Chaincast\Core\Rpc
  */
@@ -14,7 +14,7 @@ use RuntimeException;
 
 final class RpcException extends RuntimeException {
 
-    /** @var array<int,string> Errores acumulados por nodo, para diagnóstico. */
+    /** @var array<int,string> Per-node accumulated errors, for diagnostics. */
     private array $nodeErrors;
 
     /**

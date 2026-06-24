@@ -52,7 +52,7 @@ msgstr ""
 msgid "For you"
 msgstr ""
 
-msgid "No reward sharing — you keep 100%"
+msgid "No reward sharing: you keep 100%"
 msgstr ""
 
 msgid "Hive Keychain not detected. Install the extension in your browser."

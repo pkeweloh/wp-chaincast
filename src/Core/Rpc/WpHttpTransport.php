@@ -1,6 +1,6 @@
 <?php
 /**
- * Transporte HTTP basado en la API de WordPress (`wp_remote_post`).
+ * HTTP transport based on the WordPress API (`wp_remote_post`).
  *
  * @package Chaincast\Core\Rpc
  */

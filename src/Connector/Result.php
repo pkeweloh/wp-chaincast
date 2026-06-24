@@ -1,7 +1,7 @@
 <?php
 /**
- * Value object genérico ok/error para operaciones que no devuelven un
- * resultado de publicación (p. ej. validar credenciales).
+ * Generic ok/error value object for operations that do not return a publish
+ * result (e.g. validating credentials).
  *
  * @package Chaincast\Connector
  */

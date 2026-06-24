@@ -1,10 +1,10 @@
 <?php
 /**
- * Clave privada graphene en formato WIF (posting key de Hive/Steem).
+ * Graphene private key in WIF format (Hive/Steem posting key).
  *
- * WIF = base58check( 0x80 || clave(32) ), con checksum de doble SHA-256 (4 bytes).
- * Esta clase no firma directamente: delega en Secp256k1, manteniendo separada la
- * criptografía pura del formato de clave de la cadena.
+ * WIF = base58check( 0x80 || key(32) ), with a double SHA-256 checksum (4 bytes).
+ * This class does not sign directly: it delegates to Secp256k1, keeping the pure
+ * cryptography separate from the chain's key format.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -19,14 +19,14 @@ use Chaincast\Core\Crypto\Secp256k1;
 
 final class PrivateKey {
 
-    /** Clave privada en hex (32 bytes). */
+    /** Private key in hex (32 bytes). */
     private string $hex;
 
     private function __construct( string $hex ) {
         $this->hex = $hex;
     }
 
-    /** Crea desde clave hex de 32 bytes (64 caracteres). */
+    /** Creates from a 32-byte hex key (64 characters). */
     public static function fromHex( string $hex ): self {
         if ( ! preg_match( '/^[0-9a-fA-F]{64}$/', $hex ) ) {
             throw new InvalidArgumentException( 'La clave privada hex debe tener 64 caracteres.' );
@@ -34,7 +34,7 @@ final class PrivateKey {
         return new self( strtolower( $hex ) );
     }
 
-    /** Crea desde una WIF (la posting key tal cual la da el monedero). */
+    /** Creates from a WIF (the posting key as the wallet provides it). */
     public static function fromWif( string $wif ): self {
         $decoded = ( new Base58() )->decode( $wif );
 
@@ -42,7 +42,7 @@ final class PrivateKey {
             throw new InvalidArgumentException( 'WIF inválida: longitud inesperada.' );
         }
 
-        $payload  = substr( $decoded, 0, 33 );   // 0x80 + clave(32).
+        $payload  = substr( $decoded, 0, 33 );   // 0x80 + key(32).
         $checksum = substr( $decoded, 33, 4 );
 
         $expected = substr( hex2bin( hash( 'sha256', hex2bin( hash( 'sha256', $payload ) ) ) ), 0, 4 );
@@ -66,7 +66,7 @@ final class PrivateKey {
     }
 
     /**
-     * Firma un digest (hex de 32 bytes) y devuelve la firma compacta (hex, 65 bytes).
+     * Signs a digest (32-byte hex) and returns the compact signature (hex, 65 bytes).
      */
     public function signDigest( string $digestHex, ?Secp256k1 $signer = null ): string {
         return ( $signer ?? new Secp256k1() )->signCompact( $digestHex, $this->hex );

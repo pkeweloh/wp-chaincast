@@ -1,13 +1,13 @@
 <?php
 /**
- * Genera vectores golden con el oráculo mahdiyari/hive-php.
+ * Generates golden vectors with the mahdiyari/hive-php oracle.
  *
- * Construye transacciones DETERMINISTAS (sin red, sin aleatoriedad) y vuelca su
- * serialización byte-a-byte, el digest de firma, el trx_id y la firma canónica.
- * El resultado se guarda como fixture en tests/fixtures/golden-vectors.json, que
- * SÍ se commitea: así nuestros tests corren sin depender del oráculo (gitignorado).
+ * Builds DETERMINISTIC transactions (no network, no randomness) and dumps their
+ * byte-by-byte serialization, the signing digest, the trx_id and the canonical
+ * signature. The result is stored as a fixture in tests/fixtures/golden-vectors.json,
+ * which IS committed: so our tests run without depending on the oracle (gitignored).
  *
- * Uso: php tools/oracle/generate-vectors.php
+ * Usage: php tools/oracle/generate-vectors.php
  */
 
 declare(strict_types=1);
@@ -18,18 +18,18 @@ use Hive\Helpers\Serializer;
 use Hive\Helpers\PrivateKey;
 use Hive\Helpers\Transaction;
 
-/** Chain id de Hive (HF24+). */
+/** Hive chain id (HF24+). */
 const HIVE_CHAIN_ID = 'beeab0de00000000000000000000000000000000000000000000000000000000';
 
-/** Clave privada de PRUEBA fija (no es la de nadie): sha256 de una cadena conocida. */
+/** Fixed TEST private key (nobody's): sha256 of a known string. */
 $testPrivHex = hash('sha256', 'wpbp-test-key-do-not-use');
 
 $serializer = new Serializer();
-$privKey    = new PrivateKey($testPrivHex, true); // true = ya es hex.
+$privKey    = new PrivateKey($testPrivHex, true); // true = already hex.
 $pubKey     = $privKey->createPublic();
 
 /**
- * Serializa + firma una transacción y devuelve el vector.
+ * Serializes + signs a transaction and returns the vector.
  *
  * @param array{0:string,1:object} $operation
  */
@@ -65,7 +65,7 @@ $txParams = [
     'expiration'       => '2026-06-14T18:00:00',
 ];
 
-// Vector principal: comment (post raíz) hacia el tag "hive-167922".
+// Primary vector: comment (root post) toward the "hive-167922" tag.
 $commentOp = [
     'comment',
     (object) [
@@ -87,7 +87,7 @@ $commentOp = [
     ],
 ];
 
-// Vector secundario: comment con caracteres multibyte (UTF-8) en título/cuerpo.
+// Secondary vector: comment with multibyte (UTF-8) characters in title/body.
 $utf8Op = [
     'comment',
     (object) [
@@ -101,10 +101,10 @@ $utf8Op = [
     ],
 ];
 
-// Vector terciario: comment_options con beneficiaries (tx de 2 ops como en la
-// publicación real: comment + comment_options). Aquí solo el comment_options.
-// Beneficiaries ORDENADOS por cuenta (lo exige la cadena). Pesos en centésimas
-// de % (puntos base): 500 = 5%, 1000 = 10%.
+// Tertiary vector: comment_options with beneficiaries (a 2-op tx like a real
+// publication: comment + comment_options). Here only the comment_options.
+// Beneficiaries SORTED by account (the chain requires it). Weights in hundredths
+// of a % (basis points): 500 = 5%, 1000 = 10%.
 $commentOptionsOp = [
     'comment_options',
     (object) [

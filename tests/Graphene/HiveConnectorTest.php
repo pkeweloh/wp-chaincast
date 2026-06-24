@@ -1,8 +1,8 @@
 <?php
 /**
- * Dry-run de publicación con HiveConnector: ejercita publish() de extremo a
- * extremo contra un transporte falso (sin red) y comprueba que la transacción
- * que se emitiría está bien formada y firmada de forma válida.
+ * HiveConnector publish dry-run: exercises publish() end to end against a fake
+ * transport (no network) and checks that the transaction it would broadcast is
+ * well-formed and validly signed.
  *
  * @package Chaincast\Tests\Graphene
  */
@@ -89,13 +89,13 @@ final class HiveConnectorTest extends TestCase {
 
         $result = $connector->publish( $payload );
 
-        // --- Resultado ---
+        // Result
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertSame( 'hola-mundo', $result->ref );
         $this->assertSame( 'https://hive.blog/@skunk1/hola-mundo', $result->url );
         $this->assertMatchesRegularExpression( '/^[0-9a-f]{40}$/', (string) $result->txId );
 
-        // --- Transacción capturada ---
+        // Captured transaction
         $this->assertNotNull( $captured, 'No se emitió ninguna transacción.' );
         $op = $captured['operations'][0];
         $this->assertSame( 'comment', $op[0] );
@@ -105,7 +105,7 @@ final class HiveConnectorTest extends TestCase {
         $this->assertSame( '', $op[1]['parent_author'] );
         $this->assertCount( 1, $captured['signatures'] );
 
-        // --- La firma es válida para el digest reconstruido ---
+        // The signature is valid for the reconstructed digest
         $serializer = new Serializer();
         $serializer->transaction(
             $captured['ref_block_num'],
@@ -160,7 +160,7 @@ final class HiveConnectorTest extends TestCase {
             $co['extensions'][0][1]['beneficiaries']
         );
 
-        // La firma debe ser válida sobre la transacción de DOS ops.
+        // The signature must be valid over the TWO-op transaction.
         $serializer = new Serializer();
         $serializer->transaction(
             $captured['ref_block_num'],
@@ -181,7 +181,7 @@ final class HiveConnectorTest extends TestCase {
         $captured  = null;
         $connector = $this->connectorCapturing( $captured );
 
-        // extra['permlink'] presente => es una edición de un post ya existente.
+        // extra['permlink'] present => it is an edit of an existing post.
         $payload = new PostPayload(
             title: 'Editado',
             body: 'Cuerpo corregido.',
@@ -202,7 +202,7 @@ final class HiveConnectorTest extends TestCase {
     }
 
     /**
-     * Conector Hive cuyo broadcast captura la transacción emitida en $captured.
+     * Hive connector whose broadcast captures the emitted transaction in $captured.
      *
      * @param array<string,mixed>|null $captured
      */
@@ -247,7 +247,7 @@ final class HiveConnectorTest extends TestCase {
 
     public function testPublishFailsGracefullyWithoutPostingKey(): void {
         $connector = new HiveConnector(
-            new GrapheneConfig( author: 'skunk1' ), // sin posting key.
+            new GrapheneConfig( author: 'skunk1' ), // no posting key.
             new RpcClient( [ self::NODE ], new FakeTransport( [ self::NODE => FakeTransport::okBody( null ) ] ) ),
             new Vault( 'test-secret' ),
             new Secp256k1(),

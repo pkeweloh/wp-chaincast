@@ -1,6 +1,6 @@
 /**
- * Modo asistido: publica en Hive firmando con la extensión Hive Keychain.
- * La posting key nunca sale del navegador del usuario.
+ * Assisted mode: publishes to Hive by signing with the Hive Keychain extension.
+ * The posting key never leaves the user's browser.
  */
 ( function () {
 	'use strict';

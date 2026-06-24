@@ -1,9 +1,9 @@
 <?php
 /**
- * Construye y registra los conectores concretos a partir de los ajustes.
+ * Builds and registers the concrete connectors from the settings.
  *
- * Se engancha a `chaincast_register_connectors`. Cablea aquí las
- * dependencias de cada conector (RPC con transporte de WordPress, Vault, firma).
+ * Hooks into `chaincast_register_connectors`. Wires each connector's
+ * dependencies here (RPC over the WordPress transport, Vault, signing).
  *
  * @package Chaincast\Core
  */
@@ -26,7 +26,7 @@ use Chaincast\Core\Rpc\WpHttpTransport;
 final class ConnectorBootstrap {
 
     /**
-     * Conectores graphene soportados: id => [clase, nodos por defecto, tag por defecto].
+     * Supported graphene connectors: id => [class, default nodes, default tag].
      *
      * @var array<string,array{class:class-string<AbstractGrapheneConnector>,nodes:string[],tag:string}>
      */

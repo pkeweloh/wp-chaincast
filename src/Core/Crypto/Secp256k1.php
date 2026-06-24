@@ -1,14 +1,14 @@
 <?php
 /**
- * Firma ECDSA secp256k1 canónica para graphene (Hive/Steem).
+ * Canonical secp256k1 ECDSA signing for graphene (Hive/Steem).
  *
- * La matemática de curva la aporta `simplito/elliptic-php` (PHP puro, requiere
- * ext-gmp); aquí va SOLO la orquestación: bucle hasta obtener una firma
- * canónica (low-S + predicado is_canonical de graphene) y empaquetado compacto
- * de 65 bytes (cabecera de recuperación + r + s).
+ * The curve math comes from `simplito/elliptic-php` (pure PHP, requires
+ * ext-gmp); this holds ONLY the orchestration: loop until a canonical signature
+ * is found (low-S + graphene's is_canonical predicate) and the 65-byte compact
+ * packing (recovery header + r + s).
  *
- * El nonce se varía de forma determinista (personalización = sha256(digest||contador)),
- * así la firma es reproducible para los tests sin depender de aleatoriedad del sistema.
+ * The nonce is varied deterministically (personalization = sha256(digest||counter)),
+ * so the signature is reproducible for tests without relying on system randomness.
  *
  * @package Chaincast\Core\Crypto
  */
@@ -22,7 +22,7 @@ use RuntimeException;
 
 final class Secp256k1 {
 
-    /** Intentos máximos para encontrar una firma canónica (en la práctica, 1-3). */
+    /** Max attempts to find a canonical signature (in practice, 1-3). */
     private const MAX_ATTEMPTS = 64;
 
     private EC $ec;
@@ -32,11 +32,11 @@ final class Secp256k1 {
     }
 
     /**
-     * Firma un digest (32 bytes en hex) con la clave privada (32 bytes en hex) y
-     * devuelve la firma compacta de 65 bytes en hex: cabecera(1) + r(32) + s(32).
+     * Signs a digest (32-byte hex) with the private key (32-byte hex) and returns
+     * the 65-byte compact signature in hex: header(1) + r(32) + s(32).
      *
-     * La cabecera = recoveryParam + 31 (27 base + 4 por clave comprimida), tal y
-     * como espera Hive/Steem.
+     * The header = recoveryParam + 31 (27 base + 4 for a compressed key), as
+     * Hive/Steem expect.
      */
     public function signCompact( string $digestHex, string $privHex ): string {
         $key = $this->ec->keyFromPrivate( $privHex, 'hex' );
@@ -47,7 +47,7 @@ final class Secp256k1 {
             $sig = $key->sign(
                 $digestHex,
                 [
-                    'canonical' => true, // fuerza low-S.
+                    'canonical' => true, // forces low-S.
                     'pers'      => $pers,
                 ]
             );
@@ -69,7 +69,7 @@ final class Secp256k1 {
     }
 
     /**
-     * Verifica una firma compacta contra una clave pública (hex, comprimida o no).
+     * Verifies a compact signature against a public key (hex, compressed or not).
      */
     public function verifyCompact( string $digestHex, string $compactHex, string $pubHex ): bool {
         [ 'r' => $r, 's' => $s ] = $this->splitCompact( $compactHex );
@@ -79,18 +79,18 @@ final class Secp256k1 {
     }
 
     /**
-     * Recupera la clave pública (hex comprimida) que produjo una firma compacta.
+     * Recovers the public key (compressed hex) that produced a compact signature.
      */
     public function recoverPublic( string $digestHex, string $compactHex ): string {
         [ 'r' => $r, 's' => $s, 'recovery' => $recovery ] = $this->splitCompact( $compactHex );
 
         $pub = $this->ec->recoverPubKey( $digestHex, [ 'r' => $r, 's' => $s ], $recovery );
 
-        return $pub->encode( 'hex', true ); // comprimida.
+        return $pub->encode( 'hex', true ); // compressed.
     }
 
     /**
-     * Predicado is_canonical de graphene sobre los 64 bytes r||s.
+     * Graphene's is_canonical predicate over the 64 bytes r||s.
      */
     private function isCanonical( string $rs ): bool {
         $c = array_values( unpack( 'C*', $rs ) ); // bytes 0..63.

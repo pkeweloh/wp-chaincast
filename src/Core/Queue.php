@@ -1,10 +1,10 @@
 <?php
 /**
- * Cola asíncrona de publicación sobre Action Scheduler.
+ * Asynchronous publishing queue on top of Action Scheduler.
  *
- * Cada (entrada, conector) se procesa en un job independiente, con reintentos
- * exponenciales ante fallos de nodo. El job construye el PostPayload, llama a
- * `publish()` del conector y registra el resultado en PostState.
+ * Each (post, connector) is processed in its own job, with exponential retries
+ * on node failures. The job builds the PostPayload, calls the connector's
+ * `publish()` and records the result in PostState.
  *
  * @package Chaincast\Core
  */
@@ -17,13 +17,13 @@ use Chaincast\Core\State\PostState;
 
 final class Queue {
 
-    /** Hook de Action Scheduler para procesar un job de publicación. */
+    /** Action Scheduler hook to process a publishing job. */
     public const HOOK = 'chaincast_job';
 
-    /** Grupo de Action Scheduler (para agrupar/limpiar). */
+    /** Action Scheduler group (for grouping/cleanup). */
     public const GROUP = 'chaincast';
 
-    /** Reintentos máximos antes de marcar como fallo definitivo. */
+    /** Max retries before marking a definitive failure. */
     public const MAX_ATTEMPTS = 5;
 
     private PostState $state;
@@ -39,11 +39,11 @@ final class Queue {
     }
 
     /**
-     * Encola la publicación de una entrada en una cadena.
+     * Enqueues publishing a post to a chain.
      */
     public function enqueue( int $postId, string $connectorId, int $attempt = 1 ): void {
         if ( ! function_exists( 'as_enqueue_async_action' ) ) {
-            return; // Action Scheduler no disponible (faltan dependencias).
+            return; // Action Scheduler unavailable (dependencies missing).
         }
 
         as_enqueue_async_action(
@@ -58,7 +58,7 @@ final class Queue {
     }
 
     /**
-     * Reencola con backoff exponencial tras un fallo reintentable.
+     * Re-enqueues with exponential backoff after a retryable failure.
      */
     public function retry( int $postId, string $connectorId, int $attempt ): bool {
         if ( ! function_exists( 'as_schedule_single_action' ) || $attempt >= self::MAX_ATTEMPTS ) {
@@ -82,7 +82,7 @@ final class Queue {
     }
 
     /**
-     * Callback del job: publica vía el servicio y gestiona reintentos.
+     * Job callback: publishes via the service and handles retries.
      */
     public function process( int $postId, string $connectorId, int $attempt = 1 ): void {
         $result = $this->publisher->publishNow( $postId, $connectorId );
@@ -92,7 +92,7 @@ final class Queue {
         }
 
         if ( $result->retryable && $this->retry( $postId, $connectorId, $attempt ) ) {
-            return; // Reencolado; el estado sigue en "queued".
+            return; // Re-enqueued; the state stays "queued".
         }
 
         $this->state->markFailed( $postId, $connectorId, (string) $result->error );

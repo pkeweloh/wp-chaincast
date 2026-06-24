@@ -1,10 +1,10 @@
 <?php
 /**
- * DTO neutro de contenido a publicar.
+ * Chain-neutral DTO of the content to publish.
  *
- * Es independiente de cualquier cadena: cada conector lo traduce a su formato
- * concreto (la comment op de graphene, una publicación EVM, etc.). El núcleo
- * construye este objeto a partir de la entrada de WordPress.
+ * It is independent of any chain: each connector translates it to its own
+ * format (the graphene comment op, an EVM publication, etc.). The core builds
+ * this object from the WordPress post.
  *
  * @package Chaincast\Connector
  */
@@ -16,16 +16,16 @@ namespace Chaincast\Connector;
 final class PostPayload {
 
     /**
-     * @param string               $title         Título de la entrada.
-     * @param string               $body          Cuerpo en Markdown.
-     * @param string[]             $tags          Etiquetas (la 1ª suele ser la categoría principal).
-     * @param string[]             $images        URLs absolutas de imágenes.
-     * @param string               $author        Autor en la cadena (p. ej. cuenta Hive).
-     * @param string               $canonicalUrl  Enlace canónico de vuelta a la web (SEO/atribución).
-     * @param int                  $wpPostId      ID de la entrada en WordPress (idempotencia).
-     * @param array<int,array{account:string,weight:int}> $beneficiaries Lista validada y ordenada
-     *        de reparto de recompensas (weight en puntos base). Vacía = 100% autor.
-     * @param array<string,mixed>  $extra         Datos adicionales por-conector (override de tags, etc.).
+     * @param string               $title         Post title.
+     * @param string               $body          Body in Markdown.
+     * @param string[]             $tags          Tags (the first is usually the primary category).
+     * @param string[]             $images        Absolute image URLs.
+     * @param string               $author        Author on the chain (e.g. Hive account).
+     * @param string               $canonicalUrl  Canonical link back to the site (SEO/attribution).
+     * @param int                  $wpPostId      WordPress post ID (idempotency).
+     * @param array<int,array{account:string,weight:int}> $beneficiaries Validated, ordered reward
+     *        split list (weight in basis points). Empty: 100% to the author.
+     * @param array<string,mixed>  $extra         Extra per-connector data (tag override, etc.).
      */
     public function __construct(
         public readonly string $title,

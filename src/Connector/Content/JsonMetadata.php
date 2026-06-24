@@ -1,9 +1,9 @@
 <?php
 /**
- * Construye el `json_metadata` de la operación comment.
+ * Builds the comment operation's `json_metadata`.
  *
- * Incluye tags (normalizadas, máx. 5), la firma de la app, el formato, las
- * imágenes y el enlace canónico de vuelta a la web (atribución/SEO).
+ * Includes tags (normalized, max 5), the app signature, the format, the images
+ * and the canonical link back to the site (attribution/SEO).
  *
  * @package Chaincast\Connector\Content
  */
@@ -49,7 +49,7 @@ final class JsonMetadata {
         $normalized = [];
         foreach ( $tags as $tag ) {
             $clean = strtolower( trim( (string) $tag ) );
-            // Las tags de Hive solo admiten [a-z0-9-] (y empezar por letra para la principal).
+            // Hive tags only allow [a-z0-9-] (and must start with a letter for the main one).
             $clean = preg_replace( '/[^a-z0-9-]+/', '-', $clean ) ?? '';
             $clean = trim( $clean, '-' );
             if ( '' !== $clean && ! in_array( $clean, $normalized, true ) ) {

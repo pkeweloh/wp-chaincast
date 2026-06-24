@@ -1,14 +1,14 @@
 <?php
 /**
- * Bitácora de publicaciones (PublishLog) sobre un post meta simulado en memoria.
+ * PublishLog over an in-memory simulated post meta.
  *
  * @package Chaincast\Tests\Core
  */
 
 declare(strict_types=1);
 
-// Stubs de post meta en el namespace del SUT: PHP resuelve las llamadas no
-// cualificadas a este namespace antes que a las globales. Respaldo en memoria.
+// Post meta stubs in the SUT's namespace: PHP resolves unqualified calls to this
+// namespace before the globals. Backed by memory.
 namespace Chaincast\Core\State {
 
     if ( ! function_exists( __NAMESPACE__ . '\\get_post_meta' ) ) {
@@ -67,7 +67,7 @@ namespace Chaincast\Tests\Core {
 
             $entries = $log->all( 7 );
             $this->assertCount( 30, $entries );
-            // Debe conservar las más recientes: la primera guardada es "intento 5".
+            // Must keep the most recent ones: the first stored is "intento 5".
             $this->assertSame( 'intento 5', $entries[0]['detail'] );
             $this->assertSame( 'intento 34', $entries[29]['detail'] );
         }

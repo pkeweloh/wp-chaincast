@@ -1,10 +1,10 @@
 <?php
 /**
- * Prueba de integración offline ("dry-run"): ejercita toda la tubería de firma
- * sin tocar la red — construir tx -> serializar -> digest -> firmar -> verificar.
+ * Offline integration test ("dry-run"): exercises the whole signing pipeline
+ * without touching the network: build tx -> serialize -> digest -> sign -> verify.
  *
- * Demuestra que las piezas de la Fase 1 encajan y producen una transacción
- * coherente con los vectores golden del oráculo.
+ * Shows that the pieces fit together and produce a transaction consistent with
+ * the oracle's golden vectors.
  *
  * @package Chaincast\Tests
  */
@@ -25,7 +25,7 @@ final class IntegrationTest extends TestCase {
         $vector  = $v['comment_post'];
         $chainId = $v['meta']['chain_id'];
 
-        // 1) Serializar la transacción comment con nuestra implementación.
+        // 1) Serialize the comment transaction with our implementation.
         $op  = $vector['operation'];
         $ser = new Serializer();
         $ser->transaction(
@@ -41,11 +41,11 @@ final class IntegrationTest extends TestCase {
         $digest = hash( 'sha256', hex2bin( $chainId . $ser->hex() ) );
         $this->assertSame( $vector['digest'], $digest, 'Digest divergente del vector.' );
 
-        // 3) Firmar con la WIF de prueba.
+        // 3) Sign with the test WIF.
         $key     = PrivateKey::fromWif( $v['meta']['test_priv_wif'] );
         $compact = $key->signDigest( $digest );
 
-        // 4) La firma debe verificar y recuperar la clave pública correcta.
+        // 4) The signature must verify and recover the right public key.
         $signer = new Secp256k1();
         $pubHex = $key->publicKey()->compressedHex();
 
@@ -53,7 +53,7 @@ final class IntegrationTest extends TestCase {
         $this->assertTrue( $signer->verifyCompact( $digest, $compact, $pubHex ) );
         $this->assertSame( $pubHex, $signer->recoverPublic( $digest, $compact ) );
 
-        // 5) La clave pública textual coincide con la del oráculo.
+        // 5) The textual public key matches the oracle's.
         $this->assertSame( $v['meta']['test_pub_key'], $key->publicKey()->toString() );
     }
 }

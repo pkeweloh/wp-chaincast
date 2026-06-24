@@ -1,10 +1,10 @@
 <?php
 /**
- * Contrato común que todo conector de cadena debe implementar.
+ * Common contract every chain connector must implement.
  *
- * El núcleo del plugin no conoce ninguna blockchain concreta: habla únicamente
- * con esta interfaz. Añadir una cadena nueva (Hive, Steem, Lens, LikeCoin...) =
- * implementar esta interfaz, sin tocar el núcleo.
+ * The plugin core knows no concrete blockchain: it talks only to this interface.
+ * Adding a new chain (Hive, Steem, Lens, LikeCoin...) means implementing this
+ * interface, without touching the core.
  *
  * @package Chaincast\Connector
  */
@@ -16,56 +16,56 @@ namespace Chaincast\Connector;
 interface ConnectorInterface {
 
     /**
-     * Identificador estable y único de la cadena: 'hive', 'steem', ...
-     * Se usa como clave en post meta, ajustes y la cola.
+     * Stable, unique chain identifier: 'hive', 'steem', ...
+     * Used as the key in post meta, settings and the queue.
      */
     public function id(): string;
 
     /**
-     * Nombre legible para la UI ("Hive", "Steem").
+     * Human-readable name for the UI ("Hive", "Steem").
      */
     public function label(): string;
 
     /**
-     * ¿Tiene la configuración mínima para operar (autor, nodos, etc.)?
+     * Does it have the minimum configuration to operate (author, nodes, etc.)?
      */
     public function isConfigured(): bool;
 
     /**
-     * ¿Puede publicar de forma automática (hay clave de firma disponible y
-     * descifrable en el servidor)? Si es false, solo cabe el modo asistido.
+     * Can it publish automatically (a signing key is available and decryptable
+     * on the server)? If false, only assisted mode is possible.
      */
     public function supportsAutomatic(): bool;
 
     /**
-     * Modo asistido: nombre del objeto global que expone la extensión de firma
-     * del navegador para esta cadena ('hive_keychain', 'steem_keychain'), o null
-     * si la cadena no admite firma asistida por extensión.
+     * Assisted mode: name of the global object the browser signing extension
+     * exposes for this chain ('hive_keychain', 'steem_keychain'), or null if the
+     * chain has no extension-assisted signing.
      */
     public function keychainExtension(): ?string;
 
     /**
-     * Valida las credenciales/configuración actuales contra la red si procede.
+     * Validates the current credentials/configuration against the network if applicable.
      */
     public function validateCredentials(): Result;
 
     /**
-     * Modo automático: serializa, firma y emite la transacción.
+     * Automatic mode: serializes, signs and broadcasts the transaction.
      */
     public function publish(PostPayload $post): PublishResult;
 
     /**
-     * Modo asistido: prepara la(s) operación(es) para que el navegador las firme
-     * (p. ej. Hive Keychain). Devuelve la estructura que consumirá el JS:
-     * { account, operations: [[nombre, campos], ...], permlink }.
+     * Assisted mode: prepares the operation(s) for the browser to sign (e.g. Hive
+     * Keychain). Returns the structure the JS will consume:
+     * { account, operations: [[name, fields], ...], permlink }.
      *
      * @return array{account:string,operations:array<int,array{0:string,1:array<string,mixed>}>,permlink:string}
      */
     public function buildSigningRequest(PostPayload $post): array;
 
     /**
-     * Modo asistido: registra el resultado de un broadcast hecho fuera del
-     * servidor (el navegador notifica el permlink/tx tras firmar).
+     * Assisted mode: records the result of a broadcast made outside the server
+     * (the browser reports the permlink/tx after signing).
      */
     public function confirmExternalBroadcast(string $ref): PublishResult;
 }

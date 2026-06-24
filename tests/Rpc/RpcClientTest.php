@@ -1,7 +1,7 @@
 <?php
 /**
- * Valida el failover del cliente JSON-RPC y el cálculo del bloque de referencia,
- * usando un transporte HTTP falso (sin red).
+ * Validates the JSON-RPC client's failover and the reference-block computation,
+ * using a fake HTTP transport (no network).
  *
  * @package Chaincast\Tests\Rpc
  */
@@ -85,7 +85,7 @@ final class RpcClientTest extends TestCase {
     }
 
     public function testReferenceBlockComputation(): void {
-        // head_block_number = 4901 (0x1325); bytes 4..7 del id = 89 86 56 78 -> 2018936457.
+        // head_block_number = 4901 (0x1325); bytes 4..7 of the id = 89 86 56 78 -> 2018936457.
         $props = [
             'head_block_number' => 4901,
             'head_block_id'     => '0000132589865678' . str_repeat( '0', 24 ),

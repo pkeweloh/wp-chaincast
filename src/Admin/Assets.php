@@ -14,7 +14,7 @@ namespace Chaincast\Admin;
 
 final class Assets {
 
-    /** Encola la hoja de estilos del admin (idempotente). */
+    /** Enqueues the admin stylesheet (idempotent). */
     public static function enqueueStyle(): void {
         wp_enqueue_style(
             'cc-admin',
@@ -24,7 +24,7 @@ final class Assets {
         );
     }
 
-    /** Encola el widget de reparto de recompensas con sus textos traducibles. */
+    /** Enqueues the reward-sharing widget with its translatable strings. */
     public static function enqueueBeneficiaries(): void {
         wp_enqueue_script(
             'cc-beneficiaries',
@@ -44,15 +44,15 @@ final class Assets {
                 'remove'    => __( 'Remove', 'chaincast' ),
                 'assigned'  => __( 'Assigned', 'chaincast' ),
                 'mine'      => __( 'For you', 'chaincast' ),
-                'empty'     => __( 'No reward sharing — you keep 100%', 'chaincast' ),
+                'empty'     => __( 'No reward sharing: you keep 100%', 'chaincast' ),
             ]
         );
     }
 
     /**
-     * Encola el realce del campo "Posting key" (muestra solo el badge cuando hay
-     * clave guardada, con un enlace para reemplazarla). No necesita textos: todo
-     * el contenido visible se pinta en el server.
+     * Enqueues the "Posting key" field enhancement (shows only the badge when a
+     * key is stored, with a link to replace it). Needs no strings: all visible
+     * content is rendered on the server.
      */
     public static function enqueuePostingKey(): void {
         wp_enqueue_script(

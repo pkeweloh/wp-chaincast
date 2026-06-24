@@ -1,9 +1,9 @@
 <?php
 /**
- * Registro de conectores activos.
+ * Registry of active connectors.
  *
- * El núcleo se mantiene agnóstico: los conectores concretos se añaden aquí
- * (normalmente desde el hook `chaincast_register_connectors`).
+ * The core stays agnostic: concrete connectors are added here (normally from
+ * the `chaincast_register_connectors` hook).
  *
  * @package Chaincast\Core
  */
@@ -39,7 +39,7 @@ final class ConnectorRegistry {
     }
 
     /**
-     * Conectores que están configurados y listos para operar.
+     * Connectors that are configured and ready to operate.
      *
      * @return array<string,ConnectorInterface>
      */

@@ -1,7 +1,7 @@
 <?php
 /**
- * Valida el cifrado AES-256-GCM del Vault: round-trip, aleatoriedad del IV,
- * autenticación (detección de manipulación) y aislamiento por clave.
+ * Validates the Vault's AES-256-GCM encryption: round-trip, IV randomness,
+ * authentication (tamper detection) and per-key isolation.
  *
  * @package Chaincast\Tests\Crypto
  */
@@ -17,7 +17,7 @@ use Chaincast\Core\Crypto\Vault;
 final class VaultTest extends TestCase {
 
     private const SECRET = 'una-constante-larga-de-wp-config-32+chars-xyz';
-    private const PLAIN  = '5KTkhhHjNnRi4LtyFTYKRPCehoDfSHUsaxNXzE4ASYxH6KQGybM'; // una WIF de ejemplo.
+    private const PLAIN  = '5KTkhhHjNnRi4LtyFTYKRPCehoDfSHUsaxNXzE4ASYxH6KQGybM'; // an example WIF.
 
     public function testRoundTrip(): void {
         $vault = new Vault( self::SECRET );
@@ -33,7 +33,7 @@ final class VaultTest extends TestCase {
         $vault   = new Vault( self::SECRET );
         $payload = $vault->encrypt( self::PLAIN );
 
-        // Alteramos un byte del ciphertext (decodificando, mutando y recodificando).
+        // Alter one byte of the ciphertext (decode, mutate, re-encode).
         $raw            = base64_decode( $payload, true );
         $raw[ strlen( $raw ) - 1 ] = $raw[ strlen( $raw ) - 1 ] === 'A' ? 'B' : 'A';
         $tampered       = base64_encode( $raw );

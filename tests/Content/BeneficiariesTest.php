@@ -1,6 +1,6 @@
 <?php
 /**
- * Parseo y validación de beneficiaries.
+ * Parsing and validation of beneficiaries.
  *
  * @package Chaincast\Tests\Content
  */
@@ -54,7 +54,7 @@ final class BeneficiariesTest extends TestCase {
 
     public function testRejectsInvalidAccount(): void {
         $this->expectException( InvalidArgumentException::class );
-        Beneficiaries::parse( 'X:10' ); // demasiado corta.
+        Beneficiaries::parse( 'X:10' ); // too short.
     }
 
     public function testRejectsBadFormat(): void {

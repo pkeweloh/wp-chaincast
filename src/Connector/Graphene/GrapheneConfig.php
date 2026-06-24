@@ -1,9 +1,9 @@
 <?php
 /**
- * Configuración de un conector graphene (Hive/Steem).
+ * Configuration of a graphene connector (Hive/Steem).
  *
- * La posting key se guarda CIFRADA (payload del Vault), nunca en claro. El
- * conector la descifra justo antes de firmar y no la retiene.
+ * The posting key is stored ENCRYPTED (Vault payload), never in clear. The
+ * connector decrypts it right before signing and does not retain it.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -15,10 +15,10 @@ namespace Chaincast\Connector\Graphene;
 final class GrapheneConfig {
 
     /**
-     * @param string   $author              Cuenta en la cadena (p. ej. 'skunk1').
-     * @param ?string  $encryptedPostingKey Posting key cifrada con el Vault, o null.
-     * @param string   $defaultTag          Tag principal por defecto (parent_permlink).
-     * @param string[] $nodes               Nodos RPC; vacío = usar los del conector.
+     * @param string   $author              Account on the chain (e.g. 'skunk1').
+     * @param ?string  $encryptedPostingKey Vault-encrypted posting key, or null.
+     * @param string   $defaultTag          Default main tag (parent_permlink).
+     * @param string[] $nodes               RPC nodes; empty: use the connector's own.
      */
     public function __construct(
         public readonly string $author,

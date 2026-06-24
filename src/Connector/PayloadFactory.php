@@ -1,10 +1,10 @@
 <?php
 /**
- * Construye un PostPayload neutro a partir de una entrada de WordPress.
+ * Builds a chain-neutral PostPayload from a WordPress post.
  *
- * Renderiza el contenido (incluye bloques Gutenberg) a HTML, lo convierte a
- * Markdown con pie canónico, y reúne tags (categoría principal primero), imágenes
- * (destacada + incrustadas) y el enlace canónico.
+ * Renders the content (Gutenberg blocks included) to HTML, converts it to
+ * Markdown with a canonical footer, and gathers tags (primary category first),
+ * images (featured plus inline) and the canonical URL.
  *
  * @package Chaincast\Connector
  */
@@ -26,9 +26,9 @@ final class PayloadFactory {
     }
 
     /**
-     * @param string                $footerTemplate       Plantilla del pie con marcadores {site}/{url}; vacía = sin pie.
-     * @param string                $beneficiariesDefault Beneficiaries globales (texto) usados si la entrada no tiene override.
-     * @param array<string,string>  $categoryMap          Mapa slug WP => tag/comunidad para los tags automáticos.
+     * @param string                $footerTemplate       Footer template with {site}/{url} placeholders; empty: no footer.
+     * @param string                $beneficiariesDefault Global beneficiaries (text) used when the post has no override.
+     * @param array<string,string>  $categoryMap          WP slug => chain tag/community map for the automatic tags.
      */
     public function fromPost( WP_Post $post, string $siteName, string $permlinkOverride = '', string $footerTemplate = '', string $beneficiariesDefault = '', array $categoryMap = [] ): PostPayload {
         $canonical = (string) get_permalink( $post );
@@ -60,13 +60,13 @@ final class PayloadFactory {
     }
 
     /**
-     * Tags para la cadena. En Hive/Steem la lista es plana y el 1º es la comunidad
-     * (parent_permlink); el resto son palabras clave de descubrimiento. El reparto:
-     *  - 1er tag = la **categoría primaria** de WP, traducida por el mapa per-cadena
-     *    (es lo único que difiere entre cadenas: la comunidad). Una sola, como exige Hive.
-     *  - Tags siguientes = las **etiquetas** de WP tal cual. Son universales (valen igual
-     *    en Hive y Steem), así que NO se mapean.
-     * Sin categoría → la comunidad la pone el `defaultTag` del conector más adelante.
+     * Chain tags. On Hive/Steem the list is flat and the first entry is the
+     * community (parent_permlink); the rest are discovery keywords:
+     *  - First tag: the WP primary category, mapped per chain (the community is
+     *    the only part that differs between chains). Just one, as Hive requires.
+     *  - Remaining tags: the WP tags as-is. They are universal (same on Hive and
+     *    Steem), so they are NOT mapped.
+     * No category: the connector's defaultTag supplies the community later on.
      *
      * @param array<string,string> $categoryMap
      *
@@ -87,12 +87,12 @@ final class PayloadFactory {
     }
 
     /**
-     * Categoría "primaria" del post (la que marca la comunidad/parent_permlink).
-     * WordPress *core* no tiene este concepto: si hay varias categorías, son iguales.
-     * Respetamos la categoría primaria de Yoast SEO o Rank Math si está definida
-     * (plugins muy extendidos); si no, usamos la primera que devuelve WordPress.
+     * The post's "primary" category (the one that sets the community/parent_permlink).
+     * WordPress core has no such concept: with several categories they are all equal.
+     * We honor Yoast SEO or Rank Math's primary category when defined (both very
+     * common plugins); otherwise we use the first one WordPress returns.
      *
-     * @return string|null Slug de la categoría, o null si el post no tiene categorías.
+     * @return string|null Category slug, or null if the post has no categories.
      */
     private function primaryCategory( WP_Post $post ): ?string {
         $categories = get_the_category( $post->ID );
@@ -114,7 +114,7 @@ final class PayloadFactory {
     }
 
     /**
-     * Imagen destacada + imágenes incrustadas en el contenido renderizado.
+     * Featured image plus images embedded in the rendered content.
      *
      * @return string[]
      */

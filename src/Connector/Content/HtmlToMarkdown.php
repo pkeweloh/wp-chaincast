@@ -1,9 +1,9 @@
 <?php
 /**
- * Convierte el HTML de WordPress a Markdown (lo que esperan Hive/Steem).
+ * Converts WordPress HTML to Markdown (what Hive/Steem expect).
  *
- * Envuelve league/html-to-markdown con opciones sensatas y, opcionalmente,
- * añade un pie de atribución con el enlace canónico de vuelta a la web.
+ * Wraps league/html-to-markdown with sensible options and, optionally, appends
+ * an attribution footer with the canonical link back to the site.
  *
  * @package Chaincast\Connector\Content
  */
@@ -21,11 +21,11 @@ final class HtmlToMarkdown {
     public function __construct() {
         $this->converter = new HtmlConverter(
             [
-                'strip_tags'      => true,   // descarta tags no convertibles en vez de dejar HTML crudo.
+                'strip_tags'      => true,   // drop non-convertible tags instead of leaving raw HTML.
                 'remove_nodes'    => 'script style',
                 'hard_break'      => true,
                 'use_autolinks'   => false,
-                'header_style'    => 'atx',  // '# H1' en vez de subrayado.
+                'header_style'    => 'atx',  // '# H1' instead of underline.
             ]
         );
     }
@@ -35,8 +35,8 @@ final class HtmlToMarkdown {
     }
 
     /**
-     * Añade un pie ya renderizado al final del Markdown, separado por una línea.
-     * Si el pie está vacío, devuelve el cuerpo sin cambios.
+     * Appends an already-rendered footer to the end of the Markdown, separated by
+     * a rule. If the footer is empty, returns the body unchanged.
      */
     public function appendFooter( string $markdown, string $footerLine ): string {
         $footerLine = trim( $footerLine );

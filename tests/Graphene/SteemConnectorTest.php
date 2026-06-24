@@ -1,7 +1,7 @@
 <?php
 /**
- * Dry-run del SteemConnector: confirma que usa el chain_id y la URL de Steem y
- * que la transacción emitida está firmada de forma válida (sin red).
+ * SteemConnector dry-run: confirms it uses Steem's chain_id and URL and that the
+ * emitted transaction is validly signed (no network).
  *
  * @package Chaincast\Tests\Graphene
  */
@@ -86,7 +86,7 @@ final class SteemConnectorTest extends TestCase {
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertSame( 'https://steemit.com/@skunk1/hola-steem', $result->url );
 
-        // La firma debe validar contra el chain_id de STEEM (no el de Hive).
+        // The signature must validate against STEEM's chain_id (not Hive's).
         $op         = $captured['operations'][0];
         $serializer = new Serializer();
         $serializer->transaction( $captured['ref_block_num'], $captured['ref_block_prefix'], $captured['expiration'], [ [ 'comment', $op[1] ] ] );

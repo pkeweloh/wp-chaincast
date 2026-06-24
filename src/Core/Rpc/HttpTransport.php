@@ -1,10 +1,10 @@
 <?php
 /**
- * Abstracción de transporte HTTP para el cliente RPC.
+ * HTTP transport abstraction for the RPC client.
  *
- * Permite usar la API HTTP de WordPress en producción y un transporte falso en
- * los tests (sin red). Devuelve siempre [status, body]; un fallo de red se
- * señala lanzando TransportException.
+ * Allows using the WordPress HTTP API in production and a fake transport in
+ * tests (no network). Always returns [status, body]; a network failure is
+ * signaled by throwing TransportException.
  *
  * @package Chaincast\Core\Rpc
  */
@@ -16,11 +16,11 @@ namespace Chaincast\Core\Rpc;
 interface HttpTransport {
 
     /**
-     * Envía un POST con cuerpo JSON.
+     * Sends a POST with a JSON body.
      *
      * @return array{status:int,body:string}
      *
-     * @throws TransportException En fallo de red/timeout.
+     * @throws TransportException On network failure/timeout.
      */
     public function postJson( string $url, string $body, int $timeout ): array;
 }

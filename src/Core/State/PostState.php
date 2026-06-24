@@ -1,9 +1,9 @@
 <?php
 /**
- * Estado de publicación por entrada y cadena, persistido en post meta.
+ * Per-post, per-chain publishing state, persisted in post meta.
  *
- * Es la base de la idempotencia: antes de encolar/publicar se consulta aquí
- * para no publicar dos veces, y al terminar se guarda el resultado por cadena.
+ * It is the basis of idempotency: before queueing/publishing we check here to
+ * avoid publishing twice, and on completion we store the result per chain.
  *
  * @package Chaincast\Core\State
  */
@@ -16,10 +16,10 @@ use Chaincast\Connector\PublishResult;
 
 final class PostState {
 
-    /** Prefijo de las meta keys: _chaincast_state_{connectorId}. */
+    /** Meta key prefix: _chaincast_state_{connectorId}. */
     private const META_PREFIX = '_chaincast_state_';
 
-    /** Estados posibles. */
+    /** Possible states. */
     public const STATUS_NONE      = 'none';
     public const STATUS_QUEUED    = 'queued';
     public const STATUS_PUBLISHED = 'published';
@@ -43,7 +43,7 @@ final class PostState {
     }
 
     /**
-     * ¿Ya se publicó (o está en curso) en esta cadena? Guarda contra dobles envíos.
+     * Already published (or in progress) on this chain? Guards against double sends.
      */
     public function isHandled( int $postId, string $connectorId ): bool {
         return in_array(

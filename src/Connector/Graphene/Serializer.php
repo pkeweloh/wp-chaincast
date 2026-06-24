@@ -1,13 +1,14 @@
 <?php
 /**
- * Serialización binaria graphene (Hive/Steem).
+ * Graphene binary serialization (Hive/Steem).
  *
- * Implementación propia de los primitivos y de la transacción + operaciones que
- * necesita el plugin. Se valida byte-a-byte contra vectores golden generados con
- * el oráculo `mahdiyari/hive-php` (ver tests/fixtures/golden-vectors.json).
+ * Our own implementation of the primitives and of the transaction plus
+ * operations the plugin needs. Validated byte by byte against golden vectors
+ * generated with the `mahdiyari/hive-php` oracle (see
+ * tests/fixtures/golden-vectors.json).
  *
- * El buffer interno son bytes crudos (string binario de PHP); `hex()` los expone
- * en hexadecimal para depuración y comparación con los vectores.
+ * The internal buffer is raw bytes (PHP binary string); `hex()` exposes them in
+ * hexadecimal for debugging and comparison with the vectors.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -25,8 +26,8 @@ final class Serializer {
     private string $buffer = '';
 
     /**
-     * Definición de operaciones soportadas: nombre => [op_id, [ [campo, tipo], ... ]].
-     * El orden de los campos es significativo (es el orden de bytes en la cadena).
+     * Supported operation definitions: name => [op_id, [ [field, type], ... ]].
+     * Field order is significant (it is the byte order on the chain).
      *
      * @var array<string,array{0:int,1:array<int,array{0:string,1:string}>}>
      */
@@ -65,10 +66,10 @@ final class Serializer {
                 [ 'author', 'string' ],
                 [ 'permlink', 'string' ],
                 [ 'max_accepted_payout', 'asset' ],
-                // El nombre del campo difiere entre cadenas (percent_hbd en Hive,
-                // percent_steem_dollars en Steem) pero los bytes son idénticos; la
-                // serialización es posicional, así que el conector pasa el valor con
-                // esta clave fija para serializar y la clave real solo en el broadcast.
+                // The field name differs between chains (percent_hbd on Hive,
+                // percent_steem_dollars on Steem) but the bytes are identical; the
+                // serialization is positional, so the connector passes the value with
+                // this fixed key for serialization and the real key only in the broadcast.
                 [ 'percent_hbd', 'uint16' ],
                 [ 'allow_votes', 'bool' ],
                 [ 'allow_curation_rewards', 'bool' ],
@@ -77,17 +78,17 @@ final class Serializer {
         ],
     ];
 
-    /** Bytes crudos acumulados. */
+    /** Accumulated raw bytes. */
     public function bytes(): string {
         return $this->buffer;
     }
 
-    /** Representación hexadecimal del buffer. */
+    /** Hexadecimal representation of the buffer. */
     public function hex(): string {
         return bin2hex( $this->buffer );
     }
 
-    // ---- Primitivos ----
+    // Primitives
 
     public function uint8( int $value ): self {
         $this->buffer .= chr( $value & 0xFF );
@@ -109,29 +110,29 @@ final class Serializer {
         return $this;
     }
 
-    /** Entero de 64 bits sin signo, little-endian (importes de asset). */
+    /** Unsigned 64-bit integer, little-endian (asset amounts). */
     public function uint64( int $value ): self {
         $this->buffer .= pack( 'P', $value ); // little-endian 64-bit.
         return $this;
     }
 
-    /** Booleano: 1 byte (0/1). */
+    /** Boolean: 1 byte (0/1). */
     public function boolean( bool $value ): self {
         return $this->uint8( $value ? 1 : 0 );
     }
 
     /**
-     * Asset graphene: importe int64 LE + precisión uint8 + símbolo en 7 bytes
-     * (rellenado con ceros). Entrada: "1000000.000 HBD".
+     * Graphene asset: int64 LE amount + uint8 precision + symbol in 7 bytes
+     * (zero-padded). Input: "1000000.000 HBD".
      */
     public function asset( string $asset ): self {
         $parts  = explode( ' ', trim( $asset ) );
         $amount = $parts[0] ?? '0';
         $symbol = $parts[1] ?? '';
 
-        // Serialización legacy: Hive conserva los símbolos antiguos por
-        // compatibilidad binaria. "HBD" se serializa como "SBD" y "HIVE" como
-        // "STEEM" (igual en ambas cadenas). El JSON del broadcast sí usa HBD/HIVE.
+        // Legacy serialization: Hive keeps the old symbols for binary
+        // compatibility. "HBD" serializes as "SBD" and "HIVE" as "STEEM" (same on
+        // both chains). The broadcast JSON does use HBD/HIVE.
         $symbol = match ( $symbol ) {
             'HBD'  => 'SBD',
             'HIVE' => 'STEEM',
@@ -140,7 +141,7 @@ final class Serializer {
 
         $frac      = explode( '.', $amount );
         $precision = isset( $frac[1] ) ? strlen( $frac[1] ) : 0;
-        // Importe entero exacto sin pasar por float: "1000000.000" -> 1000000000.
+        // Exact integer amount without going through float: "1000000.000" -> 1000000000.
         $raw = (int) ( ( $frac[0] ?? '0' ) . ( $frac[1] ?? '' ) );
 
         $this->uint64( $raw );
@@ -152,10 +153,10 @@ final class Serializer {
     }
 
     /**
-     * Extensiones de comment_options. Solo soportamos la extensión de
-     * beneficiaries (variant tag 0). Estructura de entrada (igual que el broadcast):
-     *   [] o [ [ 0, [ 'beneficiaries' => [ ['account'=>..,'weight'=>..], ... ] ] ] ].
-     * Los beneficiaries deben venir ordenados por cuenta (lo exige la cadena).
+     * comment_options extensions. We only support the beneficiaries extension
+     * (variant tag 0). Input structure (same as the broadcast):
+     *   [] or [ [ 0, [ 'beneficiaries' => [ ['account'=>..,'weight'=>..], ... ] ] ] ].
+     * Beneficiaries must come sorted by account (the chain requires it).
      *
      * @param array<int,mixed> $extensions
      */
@@ -175,7 +176,7 @@ final class Serializer {
     }
 
     /**
-     * Entero de longitud variable (LEB128 sin signo), como el writeVariant32 de graphene.
+     * Variable-length integer (unsigned LEB128), like graphene's writeVariant32.
      */
     public function varuint32( int $value ): self {
         if ( $value < 0 ) {
@@ -194,7 +195,7 @@ final class Serializer {
     }
 
     /**
-     * Cadena: prefijo varint con la longitud EN BYTES + los bytes crudos.
+     * String: varint prefix with the length IN BYTES + the raw bytes.
      */
     public function string( string $value ): self {
         $this->varuint32( strlen( $value ) );
@@ -203,8 +204,8 @@ final class Serializer {
     }
 
     /**
-     * Fecha de cabecera de transacción: timestamp UTC como uint32 little-endian.
-     * Formato de entrada: 'Y-m-d\TH:i:s' (sin zona, se interpreta como UTC).
+     * Transaction header date: UTC timestamp as little-endian uint32.
+     * Input format: 'Y-m-d\TH:i:s' (no zone, interpreted as UTC).
      */
     public function date( string $iso ): self {
         $dt = DateTimeImmutable::createFromFormat(
@@ -218,13 +219,13 @@ final class Serializer {
         return $this->uint32( $dt->getTimestamp() );
     }
 
-    // ---- Estructuras de alto nivel ----
+    // High-level structures
 
     /**
-     * Serializa una operación: varint(op_id) + campos en orden.
+     * Serializes an operation: varint(op_id) + fields in order.
      *
-     * @param string              $name   Nombre de la operación (p. ej. 'comment').
-     * @param array<string,mixed> $fields Valores por nombre de campo.
+     * @param string              $name   Operation name (e.g. 'comment').
+     * @param array<string,mixed> $fields Values by field name.
      */
     public function operation( string $name, array $fields ): self {
         if ( ! isset( self::OPERATIONS[ $name ] ) ) {
@@ -245,12 +246,12 @@ final class Serializer {
     }
 
     /**
-     * Serializa una transacción completa lista para firmar.
+     * Serializes a full transaction ready to sign.
      *
      * @param int                                        $refBlockNum
      * @param int                                        $refBlockPrefix
      * @param string                                     $expiration   ISO 'Y-m-d\TH:i:s' UTC.
-     * @param array<int,array{0:string,1:array<string,mixed>}> $operations Lista de [nombre, campos].
+     * @param array<int,array{0:string,1:array<string,mixed>}> $operations List of [name, fields].
      */
     public function transaction( int $refBlockNum, int $refBlockPrefix, string $expiration, array $operations ): self {
         $this->uint16( $refBlockNum );
@@ -262,7 +263,7 @@ final class Serializer {
             $this->operation( $name, $fields );
         }
 
-        // extensions: lista vacía.
+        // extensions: empty list.
         $this->varuint32( 0 );
 
         return $this;

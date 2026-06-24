@@ -1,10 +1,10 @@
 <?php
 /**
- * Resultado de un intento de publicación en una cadena.
+ * Result of a publish attempt on a chain.
  *
- * Es un value object inmutable: en éxito lleva la referencia on-chain
- * (permlink/id), la URL pública y el tx_id; en fallo lleva el mensaje y si
- * conviene reintentar (errores de nodo) o no (errores definitivos).
+ * An immutable value object: on success it carries the on-chain reference
+ * (permlink/id), the public URL and the tx_id; on failure it carries the message
+ * and whether a retry makes sense (node errors) or not (definitive errors).
  *
  * @package Chaincast\Connector
  */
@@ -17,9 +17,9 @@ final class PublishResult {
 
     private function __construct(
         public readonly bool $success,
-        public readonly ?string $ref = null,        // permlink u otra referencia estable.
-        public readonly ?string $url = null,        // URL pública del contenido.
-        public readonly ?string $txId = null,       // id de transacción on-chain.
+        public readonly ?string $ref = null,        // permlink or another stable reference.
+        public readonly ?string $url = null,        // public URL of the content.
+        public readonly ?string $txId = null,       // on-chain transaction id.
         public readonly ?string $error = null,
         public readonly bool $retryable = false,
     ) {
@@ -34,7 +34,7 @@ final class PublishResult {
     }
 
     /**
-     * Representación serializable para guardar en post meta.
+     * Serializable representation for storing in post meta.
      *
      * @return array<string,mixed>
      */

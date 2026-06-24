@@ -1,12 +1,11 @@
 <?php
 /**
- * Genera permlinks válidos para Hive/Steem.
+ * Generates valid Hive/Steem permlinks.
  *
- * Reglas de la cadena: minúsculas, solo [a-z0-9-], sin guiones dobles ni al
- * inicio/fin, longitud máxima 256. El permlink solo se genera en la primera
- * publicación; después se persiste y se reutiliza, de modo que una edición
- * EDITA el post en vez de crear uno nuevo (la estabilidad la da el guardado,
- * no el contenido del slug).
+ * Chain rules: lowercase, only [a-z0-9-], no double or leading/trailing hyphens,
+ * max length 256. The permlink is generated only on the first publish; afterwards
+ * it is persisted and reused, so an edit EDITS the post instead of creating a new
+ * one (stability comes from persistence, not from the slug contents).
  *
  * @package Chaincast\Connector\Content
  */
@@ -20,9 +19,9 @@ final class PermlinkGenerator {
     private const MAX_LENGTH = 256;
 
     /**
-     * Permlink limpio a partir del título. El ID de la entrada solo se usa como
-     * fallback cuando el título no produce slug (p. ej. título vacío o sin
-     * caracteres ASCII), para garantizar un permlink no vacío.
+     * Clean permlink from the title. The post ID is only used as a fallback when
+     * the title yields no slug (e.g. empty title or no ASCII characters), to
+     * guarantee a non-empty permlink.
      */
     public function generate( string $title, int $postId ): string {
         $slug = $this->slugify( $title );
@@ -39,7 +38,7 @@ final class PermlinkGenerator {
     }
 
     /**
-     * Convierte un texto arbitrario en un slug compatible con la cadena.
+     * Converts arbitrary text into a chain-compatible slug.
      */
     public function slugify( string $text ): string {
         $text = $this->transliterate( $text );
@@ -48,7 +47,7 @@ final class PermlinkGenerator {
         return trim( $text, '-' );
     }
 
-    /** Mapa de transliteración de caracteres latinos comunes a ASCII. */
+    /** Transliteration map of common Latin characters to ASCII. */
     private const TRANSLIT = [
         'á' => 'a', 'à' => 'a', 'â' => 'a', 'ä' => 'a', 'ã' => 'a', 'å' => 'a',
         'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
@@ -59,8 +58,8 @@ final class PermlinkGenerator {
     ];
 
     /**
-     * Translitera acentos latinos a ASCII de forma determinista (sin depender de
-     * iconv, cuyo //TRANSLIT varía entre plataformas). Lo no mapeable se descarta.
+     * Transliterates Latin accents to ASCII deterministically (without relying on
+     * iconv, whose //TRANSLIT varies across platforms). Anything unmappable is dropped.
      */
     private function transliterate( string $text ): string {
         $text = strtr( mb_strtolower( $text, 'UTF-8' ), self::TRANSLIT );

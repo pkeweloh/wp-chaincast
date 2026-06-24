@@ -1,11 +1,11 @@
 /**
- * Realce del campo "Posting key".
+ * "Posting key" field enhancement.
  *
- * Cuando ya hay una clave guardada (`.cc-key[data-haskey]`), oculta el input y
- * muestra solo el badge "clave guardada" + un enlace "Replace key". Al pulsarlo
- * aparece el input (para escribir una nueva) y un "Cancel" que lo vuelve a ocultar.
- * Sin JS, el input queda visible y se puede reemplazar la clave igualmente, así que
- * esto es solo una mejora progresiva. Todos los textos vienen ya pintados del server.
+ * When a key is already stored (`.cc-key[data-haskey]`), hides the input and
+ * shows only the "key saved" badge + a "Replace key" link. Clicking it reveals
+ * the input (to type a new one) and a "Cancel" that hides it again. Without JS,
+ * the input stays visible and the key can be replaced anyway, so this is just
+ * progressive enhancement. All strings are already rendered by the server.
  */
 ( function () {
 	'use strict';

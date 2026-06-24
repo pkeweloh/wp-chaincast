@@ -1,14 +1,14 @@
 <?php
 /**
- * Mapeo de categorías/etiquetas de WordPress a tags o comunidades de la cadena.
+ * Maps WordPress categories/tags to the chain's tags or communities.
  *
- * El usuario asocia en Ajustes (por cada cadena) cada categoría de WordPress a un
- * destino, p. ej. "noticias → hive-167922", para que las entradas de esa
- * categoría aterricen en esa comunidad. Se aplica al construir los tags
- * automáticos (cuando la entrada no tiene tags propios). Si una categoría no está
- * mapeada, se usa su slug tal cual (comportamiento por defecto, sin configurar).
+ * In Settings (per chain) the user associates each WordPress category with a
+ * target, e.g. "news: hive-167922", so posts in that category land in that
+ * community. Applied when building the automatic tags (when the post has no tags
+ * of its own). If a category is not mapped, its slug is used as-is (the default,
+ * unconfigured behavior).
  *
- * Clase pura (sin dependencias de WordPress) para poder validarla en tests.
+ * Pure class (no WordPress dependencies) so it can be validated in tests.
  *
  * @package Chaincast\Connector\Content
  */
@@ -20,8 +20,8 @@ namespace Chaincast\Connector\Content;
 final class CategoryMap {
 
     /**
-     * Traduce una lista de slugs aplicando el mapa. Los no mapeados se conservan.
-     * Devuelve la lista sin vacíos ni duplicados, preservando el orden.
+     * Translates a list of slugs through the map. Unmapped ones are kept.
+     * Returns the list without empties or duplicates, preserving order.
      *
      * @param array<string,string> $map
      * @param string[]             $slugs

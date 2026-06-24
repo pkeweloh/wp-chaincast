@@ -1,9 +1,9 @@
 <?php
 /**
- * Transporte HTTP basado en cURL.
+ * HTTP transport based on cURL.
  *
- * Fallback para entornos fuera de WordPress (CLI, generación de vectores,
- * pruebas de integración manuales).
+ * Fallback for environments outside WordPress (CLI, vector generation, manual
+ * integration testing).
  *
  * @package Chaincast\Core\Rpc
  */

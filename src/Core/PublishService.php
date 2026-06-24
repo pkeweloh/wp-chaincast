@@ -1,11 +1,11 @@
 <?php
 /**
- * Servicio de publicación: construye el payload de una entrada y la publica en
- * un conector, actualizando el estado. Lo usan tanto la cola (async) como el
- * botón manual del editor (síncrono).
+ * Publishing service: builds a post's payload and publishes it through a
+ * connector, updating the state. Used by both the queue (async) and the
+ * editor's manual button (sync).
  *
- * En éxito marca el estado como publicado; en fallo NO marca nada (lo decide
- * quien llama: la cola puede reintentar, el botón manual marca fallo).
+ * On success it marks the state as published; on failure it marks nothing (the
+ * caller decides: the queue may retry, the manual button marks failure).
  *
  * @package Chaincast\Core
  */
@@ -42,7 +42,7 @@ final class PublishService {
             return PublishResult::failure( 'La entrada ya no existe.' );
         }
 
-        // Reutiliza el permlink ya asignado (idempotencia en ediciones).
+        // Reuse the already-assigned permlink (idempotency on edits).
         $existing = $this->state->get( $postId, $connectorId );
         $permlink = is_string( $existing['ref'] ?? null ) ? $existing['ref'] : '';
 
@@ -69,8 +69,8 @@ final class PublishService {
     }
 
     /**
-     * Modo asistido (Keychain): prepara la operación a firmar en el navegador.
-     * No toca la posting key ni la red.
+     * Assisted mode (Keychain): prepares the operation to sign in the browser.
+     * Does not touch the posting key or the network.
      *
      * @return array{account:string,operations:array<int,array{0:string,1:array<string,mixed>}>,permlink:string}|null
      */
@@ -96,7 +96,7 @@ final class PublishService {
     }
 
     /**
-     * Modo asistido: registra un broadcast hecho en el navegador (Keychain).
+     * Assisted mode: records a broadcast made in the browser (Keychain).
      */
     public function confirmExternal( int $postId, string $connectorId, string $permlink, string $txId ): PublishResult {
         $connector = $this->connectors->get( $connectorId );

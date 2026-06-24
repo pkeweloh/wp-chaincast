@@ -1,6 +1,6 @@
 <?php
 /**
- * Error de transporte (red/timeout) al contactar un nodo RPC.
+ * Transport error (network/timeout) when contacting an RPC node.
  *
  * @package Chaincast\Core\Rpc
  */

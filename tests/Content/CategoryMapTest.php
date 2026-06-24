@@ -1,6 +1,6 @@
 <?php
 /**
- * Parseo, formato y aplicación del mapeo de categorías.
+ * Parsing, formatting and applying the category map.
  *
  * @package Chaincast\Tests\Content
  */
@@ -24,7 +24,7 @@ final class CategoryMapTest extends TestCase {
     }
 
     public function testApplyDedupesAfterMappingPreservingOrder(): void {
-        // Dos categorías distintas que mapean al mismo destino → una sola.
+        // Two different categories mapping to the same target: just one.
         $map   = [ 'noticias' => 'hive-167922', 'actualidad' => 'hive-167922' ];
         $slugs = [ 'noticias', 'actualidad', 'blog' ];
         $this->assertSame(

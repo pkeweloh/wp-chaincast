@@ -1,14 +1,14 @@
 <?php
 /**
- * Cifrado en reposo de secretos (la posting key) con AES-256-GCM.
+ * Encryption at rest of secrets (the posting key) with AES-256-GCM.
  *
- * La clave de cifrado NO vive en la base de datos: se deriva de una constante
- * definida en `wp-config.php` (`CHAINCAST_KEY`). Sin esa constante,
- * el modo automático queda deshabilitado y el plugin cae al modo asistido
- * (firma en el navegador, sin claves en el servidor).
+ * The encryption key does NOT live in the database: it is derived from a
+ * constant defined in `wp-config.php` (`CHAINCAST_KEY`). Without that constant,
+ * automatic mode is disabled and the plugin falls back to assisted mode (signing
+ * in the browser, no keys on the server).
  *
- * Formato del payload (base64): versión(1) || iv(12) || tag(16) || ciphertext.
- * GCM aporta autenticación: cualquier manipulación del dato hace fallar el descifrado.
+ * Payload format (base64): version(1) || iv(12) || tag(16) || ciphertext.
+ * GCM provides authentication: any tampering makes decryption fail.
  *
  * @package Chaincast\Core\Crypto
  */
@@ -27,26 +27,26 @@ final class Vault {
     private const TAG_LEN    = 16;
     private const CONST_NAME = 'CHAINCAST_KEY';
 
-    /** Clave de 32 bytes derivada del secreto maestro. */
+    /** 32-byte key derived from the master secret. */
     private string $key;
 
     public function __construct( string $masterSecret ) {
         if ( '' === $masterSecret ) {
             throw new RuntimeException( 'El secreto maestro del Vault no puede estar vacío.' );
         }
-        // Derivación a 32 bytes; admite un secreto de cualquier longitud.
+        // Derive to 32 bytes; accepts a secret of any length.
         $this->key = hash( 'sha256', $masterSecret, true );
     }
 
     /**
-     * ¿Está definida la constante de `wp-config.php` para habilitar el modo automático?
+     * Is the `wp-config.php` constant defined to enable automatic mode?
      */
     public static function isConfigured(): bool {
         return defined( self::CONST_NAME ) && '' !== (string) constant( self::CONST_NAME );
     }
 
     /**
-     * Crea el Vault desde la constante de `wp-config.php`, o null si no está disponible.
+     * Creates the Vault from the `wp-config.php` constant, or null if unavailable.
      */
     public static function fromWpConfig(): ?self {
         if ( ! self::isConfigured() ) {
@@ -56,7 +56,7 @@ final class Vault {
     }
 
     /**
-     * Cifra un texto plano y devuelve el payload en base64.
+     * Encrypts a plaintext and returns the payload in base64.
      */
     public function encrypt( string $plaintext ): string {
         $iv  = random_bytes( self::IV_LEN );
@@ -81,8 +81,8 @@ final class Vault {
     }
 
     /**
-     * Descifra un payload generado por encrypt(). Lanza excepción si está
-     * manipulado, truncado o cifrado con otra clave.
+     * Decrypts a payload created by encrypt(). Throws if it has been tampered
+     * with, truncated, or encrypted with a different key.
      */
     public function decrypt( string $payload ): string {
         $raw = base64_decode( $payload, true );

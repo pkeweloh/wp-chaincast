@@ -1,10 +1,10 @@
 <?php
 /**
- * Metabox por-entrada en el editor.
+ * Per-post metabox in the editor.
  *
- * Muestra, por cada conector, el estado de publicación (con enlace si está
- * publicado) y un botón para **publicar/actualizar ahora** en esa cadena. Así el
- * usuario decide cuándo publicar, independientemente de pulsar "Publicar" en WP.
+ * Shows, for each connector, the publishing state (with a link if published) and
+ * a button to **publish/update now** on that chain. This lets the user decide
+ * when to publish, independently of clicking "Publish" in WP.
  *
  * @package Chaincast\Admin
  */
@@ -80,7 +80,7 @@ final class MetaBox {
     }
 
     /**
-     * Historial de intentos de publicación de la entrada (todas las cadenas/vías).
+     * The post's publish-attempt history (all chains/paths).
      */
     private function renderLog( WP_Post $post ): void {
         $entries = $this->log->all( (int) $post->ID );
@@ -96,7 +96,7 @@ final class MetaBox {
         );
         echo '<ul style="margin:8px 0 0;max-height:220px;overflow:auto;font-size:12px">';
 
-        // Más recientes primero.
+        // Most recent first.
         foreach ( array_reverse( $entries ) as $entry ) {
             $ok    = ! empty( $entry['success'] );
             $icon  = $ok ? '✓' : '✗';
@@ -166,7 +166,7 @@ final class MetaBox {
         echo '<div style="margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid #eee">';
         printf( '<strong>%s</strong><br>', esc_html( $connector->label() ) );
 
-        // Estado, con enlace si está publicado.
+        // Status, with a link if published.
         if ( PostState::STATUS_PUBLISHED === $status && ! empty( $state['url'] ) ) {
             printf(
                 '%s <a href="%s" target="_blank" rel="noopener">%s</a>',
@@ -181,7 +181,7 @@ final class MetaBox {
             }
         }
 
-        // Botón manual (enlace con nonce; evita formularios anidados en el editor).
+        // Manual button (nonce link; avoids nested forms in the editor).
         if ( $connector->supportsAutomatic() && 'auto-draft' !== $post->post_status ) {
             $label = PostState::STATUS_PUBLISHED === $status
                 ? __( 'Update on %s now', 'chaincast' )
@@ -206,8 +206,8 @@ final class MetaBox {
             );
         }
 
-        // Modo asistido con Keychain (firma en el navegador, sin clave en el servidor).
-        // Hive → Hive Keychain, Steem → Steem Keychain (extensiones distintas).
+        // Assisted mode with Keychain (signs in the browser, no key on the server).
+        // Hive: Hive Keychain, Steem: Steem Keychain (different extensions).
         $extension = $connector->keychainExtension();
         if ( null !== $extension && 'auto-draft' !== $post->post_status ) {
             printf(

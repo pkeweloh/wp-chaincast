@@ -1,11 +1,11 @@
 <?php
 /**
- * Página de ajustes del plugin.
+ * Plugin settings page.
  *
- * Configura cada conector (Hive, Steem): activación, publicación automática,
- * cuenta autor, posting key (guardada SIEMPRE cifrada con el Vault), tag por
- * defecto; más ajustes generales (pie de atribución). Incluye un botón para
- * validar credenciales contra la cadena sin publicar.
+ * Configures each connector (Hive, Steem): enablement, automatic publishing,
+ * author account, posting key (ALWAYS stored encrypted with the Vault), default
+ * tag; plus general settings (attribution footer). Includes a button to validate
+ * credentials against the chain without publishing.
  *
  * @package Chaincast\Admin
  */
@@ -26,7 +26,7 @@ final class SettingsPage {
     private const MENU_SLUG    = 'chaincast';
     private const VALIDATE_ACT = 'chaincast_validate_creds';
 
-    /** Conectores configurables: id => etiqueta. */
+    /** Configurable connectors: id => label. */
     private const CONNECTORS = [
         'hive'  => 'Hive',
         'steem' => 'Steem',
@@ -68,8 +68,8 @@ final class SettingsPage {
     }
 
     /**
-     * Campo de reparto de recompensas: input de texto (canónico, lo que se guarda)
-     * que el JS realza a tabla. Sin JS, el input sigue siendo usable.
+     * Reward-sharing field: a text input (canonical, what gets stored) that the JS
+     * enhances into a table. Without JS, the input is still usable.
      */
     private function renderBeneficiariesField( string $name, string $value ): void {
         printf(
@@ -81,8 +81,8 @@ final class SettingsPage {
     }
 
     /**
-     * Icono de ayuda con tooltip estilizado por CSS (caja), no el title nativo.
-     * El texto llega ya escapado para atributo (esc_attr__), y puede contener «%».
+     * Help icon with a CSS-styled tooltip (box), not the native title. The text
+     * arrives already escaped for an attribute (esc_attr__), and may contain "%".
      */
     private function renderHelp( string $textEscaped ): void {
         echo '<span class="cc-help" tabindex="0" role="img" aria-label="' . $textEscaped . '" data-tip="' . $textEscaped . '">?</span>';
@@ -101,8 +101,8 @@ final class SettingsPage {
     }
 
     /**
-     * Valida la posting key guardada de cada conector activo contra la cuenta
-     * on-chain. No emite nada: deriva la pubkey y consulta la cuenta.
+     * Validates each active connector's stored posting key against the on-chain
+     * account. Broadcasts nothing: derives the pubkey and queries the account.
      */
     public function handleValidate(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -134,7 +134,7 @@ final class SettingsPage {
     }
 
     /**
-     * Sanea y cifra los ajustes de todos los conectores + la sección general.
+     * Sanitizes and encrypts the settings of all connectors + the general section.
      *
      * @param mixed $input
      * @return array<string,array<string,mixed>>
@@ -174,8 +174,8 @@ final class SettingsPage {
     }
 
     /**
-     * Sanea el mapa de categorías de un conector (slug WP => destino). Recibe el
-     * array de inputs por categoría; descarta destinos vacíos.
+     * Sanitizes a connector's category map (WP slug => target). Receives the
+     * per-category input array; drops empty targets.
      *
      * @param mixed $input
      * @return array<string,string>
@@ -203,7 +203,7 @@ final class SettingsPage {
         }
 
         try {
-            PrivateKey::fromWif( $plainWif ); // valida el formato antes de cifrar.
+            PrivateKey::fromWif( $plainWif ); // validates the format before encrypting.
         } catch ( Throwable $e ) {
             add_settings_error(
                 Settings::OPTION,
@@ -395,8 +395,8 @@ final class SettingsPage {
     }
 
     /**
-     * Filas de mapeo: una por categoría real de WordPress, con su destino en esta
-     * cadena. Vacío = se usa el slug de la categoría tal cual.
+     * Mapping rows: one per real WordPress category, with its target on this
+     * chain. Empty = the category slug is used as-is.
      *
      * @param array<string,string> $map
      */

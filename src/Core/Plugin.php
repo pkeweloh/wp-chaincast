@@ -1,9 +1,6 @@
 <?php
 /**
- * Orquestador del plugin: instancia los componentes y registra los hooks.
- *
- * En la Fase 0 no hay lógica de cadena: solo se cablea la estructura
- * (ajustes, metabox, cola, controlador de publicación y registro de conectores).
+ * Plugin orchestrator: instantiates the components and registers the hooks.
  *
  * @package Chaincast\Core
  */
@@ -61,7 +58,7 @@ final class Plugin {
     }
 
     /**
-     * Registra todos los hooks. Idempotente.
+     * Registers all hooks. Idempotent.
      */
     public function boot(): void {
         if ( $this->booted ) {
@@ -70,9 +67,9 @@ final class Plugin {
         $this->booted = true;
 
         /**
-         * Punto de extensión: aquí los conectores se registran. El bootstrap del
-         * plugin engancha HiveConnector según los ajustes; código externo puede
-         * añadir más conectores con este mismo hook.
+         * Extension point: connectors register here. The plugin's bootstrap hooks
+         * up the connectors based on the settings; external code can add more
+         * connectors through this same hook.
          *
          * @param ConnectorRegistry $registry
          */
@@ -95,15 +92,15 @@ final class Plugin {
     }
 
     /**
-     * Activación: asegura que Action Scheduler esté disponible (lo trae la
-     * dependencia de Composer) y deja espacio para tareas de migración futuras.
+     * Activation: ensures Action Scheduler is available (shipped by the Composer
+     * dependency) and leaves room for future migration tasks.
      */
     public static function on_activate(): void {
-        // Nada destructivo en Fase 0. Las opciones se crean perezosamente.
+        // Nothing destructive. Options are created lazily.
     }
 
     /**
-     * Desactivación: limpia las acciones programadas pendientes de la cola.
+     * Deactivation: clears the queue's pending scheduled actions.
      */
     public static function on_deactivate(): void {
         if ( function_exists( 'as_unschedule_all_actions' ) ) {

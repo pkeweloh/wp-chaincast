@@ -1,11 +1,10 @@
 <?php
 /**
- * Decide qué y cuándo publicar.
+ * Decides what to publish and when.
  *
- * Escucha la transición de estado de las entradas (* -> publish) y, respetando
- * la idempotencia (PostState), encola un job por cada conector activo elegido
- * para esa entrada. La construcción del PostPayload y la traducción a Markdown
- * llegan en fases posteriores.
+ * Listens to the posts' status transition (* to publish) and, honoring
+ * idempotency (PostState), enqueues one job per active connector chosen for that
+ * post.
  *
  * @package Chaincast\Core
  */
@@ -34,17 +33,17 @@ final class PublishController {
     }
 
     /**
-     * @param string  $new Estado nuevo.
-     * @param string  $old Estado anterior.
+     * @param string  $new New status.
+     * @param string  $old Previous status.
      * @param WP_Post $post
      */
     public function onTransition( string $new, string $old, WP_Post $post ): void {
-        // Solo nos interesa la transición a "publish".
+        // We only care about the transition to "publish".
         if ( 'publish' !== $new ) {
             return;
         }
 
-        // De momento solo entradas (post). Tipos adicionales: configurable en Fase 4.
+        // Posts only for now.
         if ( 'post' !== $post->post_type ) {
             return;
         }
@@ -53,7 +52,7 @@ final class PublishController {
 
         foreach ( $this->targetsFor( $postId ) as $connectorId ) {
             if ( $this->state->isHandled( $postId, $connectorId ) ) {
-                continue; // Idempotencia: ya encolado o publicado.
+                continue; // Idempotency: already queued or published.
             }
 
             $this->state->markQueued( $postId, $connectorId );
@@ -62,9 +61,9 @@ final class PublishController {
     }
 
     /**
-     * Conectores destino para auto-publicación: solo los configurados que tienen
-     * la auto-publicación activada en ajustes. Si ninguno la tiene, no se publica
-     * nada automáticamente (el usuario usa el botón manual del editor).
+     * Target connectors for auto-publishing: only the configured ones with
+     * auto-publish enabled in settings. If none have it, nothing is published
+     * automatically (the user uses the editor's manual button).
      *
      * @return string[]
      */
@@ -77,9 +76,9 @@ final class PublishController {
         }
 
         /**
-         * Permite filtrar a qué cadenas se auto-publica una entrada concreta.
+         * Lets callers filter which chains a specific post is auto-published to.
          *
-         * @param string[] $ids    IDs de conector destino.
+         * @param string[] $ids    Target connector IDs.
          * @param int      $postId
          */
         return (array) apply_filters( 'chaincast_targets', $ids, $postId );

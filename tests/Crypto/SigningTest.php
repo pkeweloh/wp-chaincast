@@ -1,11 +1,11 @@
 <?php
 /**
- * Valida la firma secp256k1 canónica y el manejo de claves graphene (WIF, STM).
+ * Validates canonical secp256k1 signing and graphene key handling (WIF, STM).
  *
- * La firma ECDSA no es un valor único, así que no se compara con el vector golden:
- * se comprueban sus PROPIEDADES (longitud, verificación, recuperación de clave,
- * canonicidad). La derivación de clave pública sí es determinista y se compara
- * con el vector.
+ * An ECDSA signature is not a single value, so it is not compared to the golden
+ * vector: its PROPERTIES are checked (length, verification, key recovery,
+ * canonicity). Public key derivation is deterministic and is compared to the
+ * vector.
  *
  * @package Chaincast\Tests\Crypto
  */
@@ -43,7 +43,7 @@ final class SigningTest extends TestCase {
 
     public function testWifRejectsBadChecksum(): void {
         $this->expectException( \InvalidArgumentException::class );
-        // Cambiamos el último carácter de una WIF válida.
+        // Change the last character of a valid WIF.
         $bad = substr( self::$meta['test_priv_wif'], 0, -1 ) . ( self::$meta['test_priv_wif'][-1] === 'M' ? 'N' : 'M' );
         PrivateKey::fromWif( $bad );
     }
@@ -58,10 +58,10 @@ final class SigningTest extends TestCase {
         // 65 bytes = 130 hex.
         $this->assertSame( 130, strlen( $compact ) );
 
-        // Verifica contra la clave pública.
+        // Verify against the public key.
         $this->assertTrue( $signer->verifyCompact( self::$digest, $compact, $pub ) );
 
-        // La clave recuperada de la firma coincide con la pública real.
+        // The key recovered from the signature matches the real public key.
         $this->assertSame( $pub, $signer->recoverPublic( self::$digest, $compact ) );
     }
 

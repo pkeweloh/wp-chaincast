@@ -1,13 +1,14 @@
 <?php
 /**
- * Bitácora de publicaciones por entrada (post meta).
+ * Per-post publishing log (post meta).
  *
- * Registra cada intento de publicación/edición/borrado en cualquier cadena y por
- * cualquier vía (cola, botón manual, Keychain), con marca de tiempo, resultado,
- * tx_id y detalle de error. Lo consume el metabox para mostrar el historial.
+ * Records each publish/edit/delete attempt on any chain and via any path (queue,
+ * manual button, Keychain), with a timestamp, result, tx_id and error detail.
+ * The metabox consumes it to show the history.
  *
- * Es informativo: NO sustituye a PostState (que guarda el estado actual y la
- * idempotencia). Se guarda acotado a las últimas entradas para no crecer sin fin.
+ * It is informational: it does NOT replace PostState (which holds the current
+ * state and idempotency). Kept bounded to the latest entries so it does not grow
+ * without limit.
  *
  * @package Chaincast\Core\State
  */
@@ -22,7 +23,7 @@ final class PublishLog {
     private const MAX_ENTRIES = 30;
 
     /**
-     * Añade una entrada al log de la entrada (las más recientes al final).
+     * Appends an entry to the post's log (most recent last).
      */
     public function record( int $postId, string $connectorId, string $action, bool $success, string $detail = '', ?string $txId = null ): void {
         $entries   = $this->all( $postId );
@@ -43,7 +44,7 @@ final class PublishLog {
     }
 
     /**
-     * Todas las entradas del log (más recientes al final).
+     * All log entries (most recent last).
      *
      * @return array<int,array<string,mixed>>
      */

@@ -1,10 +1,10 @@
 /**
- * Realce del campo de reparto de recompensas (beneficiaries).
+ * Reward-sharing (beneficiaries) field enhancement.
  *
- * Convierte un input de texto "cuenta:porcentaje, cuenta:porcentaje" en una tabla
- * editable con filas, botón de añadir/quitar y un total en vivo. El input de texto
- * original queda oculto y sincronizado (es lo que se guarda y parsea en el server),
- * así que esto es solo una mejora progresiva: sin JS, el campo de texto sigue valiendo.
+ * Turns a text input "account:percent, account:percent" into an editable table
+ * with rows, an add/remove button and a live total. The original text input stays
+ * hidden and in sync (it is what gets stored and parsed on the server), so this is
+ * just progressive enhancement: without JS, the text field still works.
  */
 ( function () {
 	'use strict';
@@ -66,13 +66,13 @@
 			raw.value = parts.join( ', ' );
 
 			var hasRows = rowsEl().length > 0;
-			// Sin filas: ocultamos la tabla y dejamos solo el botón Add + un mensaje
-			// claro (sin el "0%", que no aporta en ese contexto).
+			// No rows: hide the table and leave just the Add button + a clear
+			// message (without the "0%", which adds nothing in that context).
 			table.style.display = hasRows ? '' : 'none';
 			addBtn.disabled = rowsEl().length >= MAX;
 
 			if ( ! hasRows ) {
-				totalLine.textContent = t( 'empty', 'No reward sharing — you keep 100%' );
+				totalLine.textContent = t( 'empty', 'No reward sharing: you keep 100%' );
 				totalLine.classList.remove( 'over' );
 				return;
 			}

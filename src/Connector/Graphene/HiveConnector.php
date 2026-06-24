@@ -1,9 +1,9 @@
 <?php
 /**
- * Conector para la blockchain Hive.
+ * Connector for the Hive blockchain.
  *
- * Solo aporta lo específico de Hive sobre AbstractGrapheneConnector: chain_id,
- * prefijo de direcciones y dominio de URL. Steem será el "gemelo" con otros valores.
+ * Only supplies Hive's specifics over AbstractGrapheneConnector: chain_id,
+ * address prefix and URL domain. Steem is the "twin" with different values.
  *
  * @package Chaincast\Connector\Graphene
  */
@@ -14,10 +14,10 @@ namespace Chaincast\Connector\Graphene;
 
 final class HiveConnector extends AbstractGrapheneConnector {
 
-    /** Chain id de Hive (HF24+). */
+    /** Hive chain id (HF24+). */
     private const CHAIN_ID = 'beeab0de00000000000000000000000000000000000000000000000000000000';
 
-    /** Nodos RPC públicos con failover. */
+    /** Public RPC nodes with failover. */
     public const DEFAULT_NODES = [
         'https://api.hive.blog',
         'https://api.deathwing.me',

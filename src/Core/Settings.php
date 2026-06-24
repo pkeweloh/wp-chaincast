@@ -1,9 +1,9 @@
 <?php
 /**
- * Repositorio de ajustes del plugin (una option de WordPress).
+ * Plugin settings repository (a single WordPress option).
  *
- * Estructura: option => [ connectorId => [ enabled, author, posting_key_enc,
- * default_tag ] ]. La posting key se guarda SIEMPRE cifrada (payload del Vault).
+ * Structure: option => [ connectorId => [ enabled, author, posting_key_enc,
+ * default_tag ] ]. The posting key is ALWAYS stored encrypted (Vault payload).
  *
  * @package Chaincast\Core
  */
@@ -16,12 +16,12 @@ final class Settings {
 
     public const OPTION = 'chaincast_settings';
 
-    /** Plantilla por defecto del pie (fallback no traducido). Marcadores: {site} y {url}. */
+    /** Default footer template (untranslated fallback). Placeholders: {site} and {url}. */
     public const DEFAULT_FOOTER = '*Originally published at [{site}]({url}).*';
 
     /**
-     * Plantilla por defecto del pie, traducible al idioma del sitio.
-     * Marcadores: {site} y {url}.
+     * Default footer template, translatable to the site language.
+     * Placeholders: {site} and {url}.
      */
     public static function defaultFooter(): string {
         return sprintf(
@@ -57,7 +57,7 @@ final class Settings {
     }
 
     /**
-     * Sección de ajustes generales (no atados a un conector).
+     * General settings section (not tied to a connector).
      *
      * @return array<string,mixed>
      */
@@ -67,16 +67,16 @@ final class Settings {
     }
 
     /**
-     * ¿Añadir el pie "Publicado originalmente en ..."? Por defecto NO: solo el
-     * contenido de la entrada.
+     * Add the "Originally published at ..." footer? Off by default: just the
+     * post content.
      */
     public function footerEnabled(): bool {
         return ! empty( $this->general()['footer_enabled'] );
     }
 
     /**
-     * Plantilla del pie (con marcadores {site} y {url}). Si está vacía, usa la de
-     * por defecto.
+     * Footer template (with {site} and {url} placeholders). If empty, uses the
+     * default.
      */
     public function footerText(): string {
         $text = trim( (string) ( $this->general()['footer_text'] ?? '' ) );
@@ -84,14 +84,14 @@ final class Settings {
     }
 
     /**
-     * Beneficiaries (reparto de recompensas de autor) de ESTA cadena, formato de
-     * texto "cuenta:porcentaje, cuenta2:porcentaje". Es por conector: las cuentas
-     * de Hive y Steem suelen ser distintas, y mandar un beneficiario inexistente a
-     * una cadena haría fallar la publicación. Vacío → 100% para el autor. Solo se
-     * aplica al CREAR el post en la cadena (la cadena no admite cambiarlos luego).
+     * Beneficiaries (author reward split) for THIS chain, in the text format
+     * "account:percent, account2:percent". Per connector: Hive and Steem accounts
+     * are usually different, and sending a nonexistent beneficiary to a chain
+     * would fail the publish. Empty: 100% to the author. Applied only when
+     * CREATING the post on the chain (the chain does not allow changing them later).
      *
-     * Compatibilidad: si esta cadena no tiene valor propio, cae al antiguo valor
-     * global único (instalaciones previas a la separación per-cadena).
+     * Backward compatibility: if this chain has no own value, it falls back to the
+     * old single global value (installs predating the per-chain split).
      */
     public function beneficiaries( string $id ): string {
         $perChain = trim( (string) ( $this->forConnector( $id )['beneficiaries'] ?? '' ) );
@@ -102,11 +102,10 @@ final class Settings {
     }
 
     /**
-     * Mapa de categorías/etiquetas de WordPress a tags o comunidades de ESTA
-     * cadena (slug => destino). Es por conector: Hive y Steem pueden apuntar a
-     * comunidades distintas para la misma categoría. Vacío por defecto → se usan
-     * los slugs de WordPress tal cual. Solo afecta al camino automático de tags
-     * (sin override por entrada).
+     * Map of WordPress categories/tags to THIS chain's tags or communities
+     * (slug => target). Per connector: Hive and Steem may point to different
+     * communities for the same category. Empty by default: the WordPress slugs
+     * are used as-is. Only affects the automatic tag path (no per-post override).
      *
      * @return array<string,string>
      */
@@ -127,8 +126,8 @@ final class Settings {
     }
 
     /**
-     * ¿Auto-publicar en esta cadena al publicar en WordPress? Por defecto NO:
-     * el usuario decide cuándo con el botón manual del editor.
+     * Auto-publish to this chain when publishing in WordPress? Off by default:
+     * the user decides when via the editor's manual button.
      */
     public function autoPublish( string $id ): bool {
         return ! empty( $this->forConnector( $id )['auto_publish'] );
