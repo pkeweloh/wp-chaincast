@@ -38,10 +38,14 @@ namespace Chaincast\Tests\Core {
         }
 
         public function testRecordAppendsInOrder(): void {
+            // Arrange
             $log = new PublishLog();
+
+            // Act
             $log->record( 5, 'hive', 'publish', true, 'https://hive.blog/@a/x', 'abc123' );
             $log->record( 5, 'steem', 'update', false, 'nodo caído' );
 
+            // Assert
             $entries = $log->all( 5 );
             $this->assertCount( 2, $entries );
 
@@ -60,11 +64,15 @@ namespace Chaincast\Tests\Core {
         }
 
         public function testCapsAtThirtyEntries(): void {
+            // Arrange
             $log = new PublishLog();
+
+            // Act
             for ( $i = 0; $i < 35; $i++ ) {
                 $log->record( 7, 'hive', 'publish', true, "intento $i" );
             }
 
+            // Assert
             $entries = $log->all( 7 );
             $this->assertCount( 30, $entries );
             // Must keep the most recent ones: the first stored is "intento 5".

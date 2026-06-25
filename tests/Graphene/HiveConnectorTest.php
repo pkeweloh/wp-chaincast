@@ -38,6 +38,7 @@ final class HiveConnectorTest extends TestCase {
     }
 
     public function testPublishProducesValidSignedTransaction(): void {
+        // Arrange
         $captured = null;
 
         $transport = new FakeTransport(
@@ -87,9 +88,10 @@ final class HiveConnectorTest extends TestCase {
             wpPostId: 42,
         );
 
+        // Act
         $result = $connector->publish( $payload );
 
-        // Result
+        // Assert
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertSame( 'hola-mundo', $result->ref );
         $this->assertSame( 'https://hive.blog/@demo-author/hola-mundo', $result->url );
@@ -124,6 +126,7 @@ final class HiveConnectorTest extends TestCase {
     }
 
     public function testPublishWithBeneficiariesAppendsCommentOptions(): void {
+        // Arrange
         $captured  = null;
         $connector = $this->connectorCapturing( $captured );
 
@@ -141,7 +144,10 @@ final class HiveConnectorTest extends TestCase {
             ],
         );
 
+        // Act
         $result = $connector->publish( $payload );
+
+        // Assert
         $this->assertTrue( $result->success, $result->error ?? '' );
 
         $ops = $captured['operations'];
@@ -178,6 +184,7 @@ final class HiveConnectorTest extends TestCase {
     }
 
     public function testEditWithBeneficiariesOmitsCommentOptions(): void {
+        // Arrange
         $captured  = null;
         $connector = $this->connectorCapturing( $captured );
 
@@ -194,7 +201,10 @@ final class HiveConnectorTest extends TestCase {
             extra: [ 'permlink' => 'ya-existe' ],
         );
 
+        // Act
         $result = $connector->publish( $payload );
+
+        // Assert
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertCount( 1, $captured['operations'], 'An edit must not include comment_options.' );
         $this->assertSame( 'comment', $captured['operations'][0][0] );

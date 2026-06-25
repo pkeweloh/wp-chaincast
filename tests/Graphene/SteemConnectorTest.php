@@ -37,6 +37,7 @@ final class SteemConnectorTest extends TestCase {
     }
 
     public function testPublishUsesSteemChainAndUrl(): void {
+        // Arrange
         $captured = null;
 
         $transport = new FakeTransport(
@@ -81,8 +82,10 @@ final class SteemConnectorTest extends TestCase {
             wpPostId: 5,
         );
 
+        // Act
         $result = $connector->publish( $payload );
 
+        // Assert
         $this->assertTrue( $result->success, $result->error ?? '' );
         $this->assertSame( 'https://steemit.com/@demo-author/hola-steem', $result->url );
 

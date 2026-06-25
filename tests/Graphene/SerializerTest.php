@@ -57,9 +57,11 @@ final class SerializerTest extends TestCase {
      * @dataProvider commentVectors
      */
     public function testTransactionMatchesGolden( string $key ): void {
+        // Arrange
         $vector = self::$vectors[ $key ];
         $op     = $vector['operation'];
 
+        // Act
         $serializer = new Serializer();
         $serializer->transaction(
             $vector['tx']['ref_block_num'],
@@ -68,6 +70,7 @@ final class SerializerTest extends TestCase {
             [ [ $op[0], $op[1] ] ]
         );
 
+        // Assert
         $this->assertSame(
             $vector['serialized'],
             $serializer->hex(),
@@ -81,11 +84,14 @@ final class SerializerTest extends TestCase {
      * @dataProvider commentVectors
      */
     public function testSigningDigestMatchesGolden( string $key ): void {
+        // Arrange
         $vector  = self::$vectors[ $key ];
         $chainId = self::$vectors['meta']['chain_id'];
 
+        // Act
         $digest = hash( 'sha256', hex2bin( $chainId . $vector['serialized'] ) );
 
+        // Assert
         $this->assertSame( $vector['digest'], $digest, "Digest of '$key' is incorrect." );
     }
 
