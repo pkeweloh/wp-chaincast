@@ -34,6 +34,7 @@ final class PayloadFactory {
         $canonical = (string) get_permalink( $post );
         $html      = (string) apply_filters( 'the_content', $post->post_content );
         $body      = $this->markdown->convert( $html );
+        $featured  = $this->featuredImage( $post );
 
         if ( '' !== trim( $footerTemplate ) ) {
             $label      = '' !== $siteName ? $siteName : $canonical;
@@ -50,7 +51,7 @@ final class PayloadFactory {
             title: get_the_title( $post ),
             body: $body,
             tags: $this->tags( $post, $categoryMap ),
-            images: $this->images( $post, $html ),
+            images: $this->images( $featured, $html ),
             author: (string) get_the_author_meta( 'display_name', (int) $post->post_author ),
             canonicalUrl: $canonical,
             wpPostId: (int) $post->ID,
@@ -113,16 +114,20 @@ final class PayloadFactory {
         return (string) $categories[0]->slug;
     }
 
+    private function featuredImage( WP_Post $post ): string {
+        $featured = get_the_post_thumbnail_url( $post, 'full' );
+        return is_string( $featured ) ? $featured : '';
+    }
+
     /**
-     * Featured image plus images embedded in the rendered content.
+     * Featured image first: chain frontends use json_metadata.image[0] as cover.
      *
      * @return string[]
      */
-    private function images( WP_Post $post, string $html ): array {
+    private function images( string $featured, string $html ): array {
         $images = [];
 
-        $featured = get_the_post_thumbnail_url( $post, 'full' );
-        if ( is_string( $featured ) && '' !== $featured ) {
+        if ( '' !== $featured ) {
             $images[] = $featured;
         }
 

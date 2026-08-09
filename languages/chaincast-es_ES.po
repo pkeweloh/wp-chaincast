@@ -125,6 +125,9 @@ msgstr "Comprueba las posting keys guardadas contra las cuentas (sin publicar na
 msgid "Connector status"
 msgstr "Estado de los conectores"
 
+msgid "Auto-publish active"
+msgstr "Publicación automática activa"
+
 msgid "Enabled"
 msgstr "Activado"
 

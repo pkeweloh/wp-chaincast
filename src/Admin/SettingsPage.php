@@ -471,15 +471,16 @@ final class SettingsPage {
                 <tr>
                     <th><?php echo esc_html__( 'Chain', 'chaincast' ); ?></th>
                     <th><?php echo esc_html__( 'Configured', 'chaincast' ); ?></th>
-                    <th><?php echo esc_html__( 'Automatic mode', 'chaincast' ); ?></th>
+                    <th><?php echo esc_html__( 'Auto-publish active', 'chaincast' ); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ( $all as $connector ) : ?>
+                    <?php $id = $connector->id(); ?>
                     <tr>
                         <td><?php echo esc_html( $connector->label() ); ?></td>
                         <td><?php echo $connector->isConfigured() ? '✓' : '—'; ?></td>
-                        <td><?php echo $connector->supportsAutomatic() ? '✓' : '—'; ?></td>
+                        <td><?php echo $this->settings->autoPublish( $id ) ? '✓' : '—'; ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
