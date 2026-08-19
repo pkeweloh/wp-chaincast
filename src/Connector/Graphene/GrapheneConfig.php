@@ -14,17 +14,24 @@ namespace Chaincast\Connector\Graphene;
 
 final class GrapheneConfig {
 
+    /** Payout modes of comment_options, the three the chain frontends offer. */
+    public const PAYOUT_DEFAULT  = 'default';   // half liquid, half Power.
+    public const PAYOUT_POWER_UP = 'power_up';  // everything as Power.
+    public const PAYOUT_DECLINED = 'declined';  // no reward at all.
+
     /**
      * @param string   $author              Account on the chain (e.g. 'demo-author').
      * @param ?string  $encryptedPostingKey Vault-encrypted posting key, or null.
      * @param string   $defaultTag          Default main tag (parent_permlink).
      * @param string[] $nodes               RPC nodes; empty: use the connector's own.
+     * @param string   $payout              One of the PAYOUT_* modes.
      */
     public function __construct(
         public readonly string $author,
         public readonly ?string $encryptedPostingKey = null,
         public readonly string $defaultTag = 'blog',
         public readonly array $nodes = [],
+        public readonly string $payout = self::PAYOUT_DEFAULT,
     ) {
     }
 

@@ -48,7 +48,7 @@
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity .12s ease;
-	z-index: 100;
+	z-index: 10000;
 	pointer-events: none;
 }
 .cc-help[data-tip]::before {
@@ -62,7 +62,7 @@
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity .12s ease;
-	z-index: 100;
+	z-index: 10000;
 	pointer-events: none;
 }
 .cc-help:hover::after,
@@ -183,11 +183,3 @@
 .cc-size-fill.over { background: #d63638; }
 .cc-size-note { margin: 0; font-size: 12px; color: #646970; }
 .cc-size-note.over { color: #b32d2e; }
-
-/* Inline help icon, same idiom as core's side panels. */
-.cc-help {
-	color: #787c82;
-	cursor: help;
-	vertical-align: text-bottom;
-}
-.cc-help:hover { color: #2271b1; }

@@ -14,6 +14,24 @@ namespace Chaincast\Admin;
 
 final class Assets {
 
+    /**
+     * Help icon with its tooltip. The text must come already escaped for an
+     * attribute.
+     *
+     * Inside the editor's meta box panel the CSS bubble cannot be used: it is
+     * painted below the editor whichever way it opens, because that panel is its
+     * own stacking context. There the browser's native tooltip takes over, which
+     * is plainer but always renders on top.
+     */
+    public static function renderHelp( string $textEscaped, bool $inPanel = false ): void {
+        printf(
+            '<span class="cc-help" tabindex="0" role="img" aria-label="%s" %s="%s">?</span>',
+            $textEscaped,
+            $inPanel ? 'title' : 'data-tip',
+            $textEscaped
+        );
+    }
+
     /** Enqueues the admin stylesheet (idempotent). */
     public static function enqueueStyle(): void {
         wp_enqueue_style(

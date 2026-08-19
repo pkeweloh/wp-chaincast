@@ -147,10 +147,10 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             ],
         ];
 
-        // Beneficiaries (reward split) only when CREATING the post.
-        $beneficiariesOp = $this->beneficiariesOp( $post, $permlink );
-        if ( null !== $beneficiariesOp ) {
-            $ops[] = $beneficiariesOp;
+        // Reward split and payout mode, only when CREATING the post.
+        $commentOptions = $this->commentOptionsOp( $post, $permlink );
+        if ( null !== $commentOptions ) {
+            $ops[] = $commentOptions;
         }
 
         $signedTx = $this->buildSignedTransaction( $ref, $expiration, $ops, $priv );
@@ -246,9 +246,9 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
             ],
         ];
 
-        $beneficiariesOp = $this->beneficiariesOp( $post, $permlink );
-        if ( null !== $beneficiariesOp ) {
-            $operations[] = [ 'comment_options', $beneficiariesOp['broadcast'] ];
+        $commentOptions = $this->commentOptionsOp( $post, $permlink );
+        if ( null !== $commentOptions ) {
+            $operations[] = [ 'comment_options', $commentOptions['broadcast'] ];
         }
 
         return [
@@ -259,24 +259,32 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     }
 
     /**
-     * Builds the comment_options op with beneficiaries, ONLY for a new post (not
-     * an edit) and when there are beneficiaries. The chain only allows setting
-     * them when creating the post. Returns separate fields for serialization
+     * Builds the comment_options op, ONLY for a new post (not an edit): the chain
+     * only accepts it when creating the post. It carries the reward split
+     * (beneficiaries) and the payout mode, so it is emitted whenever either
+     * departs from the chain default. Declining the payout is a zeroed
+     * max_accepted_payout, a different field from the liquid/Power percentage. Returns separate fields for serialization
      * (fixed positional % key) and for the broadcast (field name and asset symbol
      * depend on the chain).
      *
      * @return array{name:string,serialize:array<string,mixed>,broadcast:array<string,mixed>}|null
      */
-    protected function beneficiariesOp( PostPayload $post, string $permlink ): ?array {
-        if ( ! $this->isNewPost( $post ) || empty( $post->beneficiaries ) ) {
+    protected function commentOptionsOp( PostPayload $post, string $permlink ): ?array {
+        $beneficiaries = array_values( $post->beneficiaries );
+        $payout        = $this->config->payout;
+        if ( ! $this->isNewPost( $post ) || ( empty( $beneficiaries ) && GrapheneConfig::PAYOUT_DEFAULT === $payout ) ) {
             return null;
         }
 
-        $extensions = [ [ 0, [ 'beneficiaries' => array_values( $post->beneficiaries ) ] ] ];
+        // 10000 is the chain default (half liquid, half Power); 0 is all Power. On a
+        // declined payout it is moot, so it keeps the default.
+        $percent    = GrapheneConfig::PAYOUT_POWER_UP === $payout ? 0 : self::FULL_PERCENT;
+        $maxPayout  = GrapheneConfig::PAYOUT_DECLINED === $payout ? '0.000 ' : '1000000.000 ';
+        $extensions = empty( $beneficiaries ) ? [] : [ [ 0, [ 'beneficiaries' => $beneficiaries ] ] ];
         $common     = [
             'author'                 => $this->config->author,
             'permlink'               => $permlink,
-            'max_accepted_payout'    => '1000000.000 ' . $this->backingSymbol(),
+            'max_accepted_payout'    => $maxPayout . $this->backingSymbol(),
             'allow_votes'            => true,
             'allow_curation_rewards' => true,
             'extensions'             => $extensions,
@@ -284,8 +292,8 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
 
         return [
             'name'      => 'comment_options',
-            'serialize' => $common + [ 'percent_hbd' => self::FULL_PERCENT ],
-            'broadcast' => $common + [ $this->percentField() => self::FULL_PERCENT ],
+            'serialize' => $common + [ 'percent_hbd' => $percent ],
+            'broadcast' => $common + [ $this->percentField() => $percent ],
         ];
     }
 

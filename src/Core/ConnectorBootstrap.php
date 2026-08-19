@@ -58,6 +58,7 @@ final class ConnectorBootstrap {
             author: (string) $this->settings->get( $id, 'author', '' ),
             encryptedPostingKey: '' !== $enc ? $enc : null,
             defaultTag: (string) $this->settings->get( $id, 'default_tag', $spec['tag'] ),
+            payout: $this->settings->payout( $id ),
         );
 
         $rpc   = new RpcClient( $spec['nodes'], new WpHttpTransport() );

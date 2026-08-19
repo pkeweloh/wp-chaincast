@@ -12,9 +12,18 @@ declare(strict_types=1);
 
 namespace Chaincast\Core;
 
+use Chaincast\Connector\Graphene\GrapheneConfig;
+
 final class Settings {
 
     public const OPTION = 'chaincast_settings';
+
+    /** Accepted payout modes, in the order the settings page lists them. */
+    public const PAYOUT_MODES = [
+        GrapheneConfig::PAYOUT_DEFAULT,
+        GrapheneConfig::PAYOUT_POWER_UP,
+        GrapheneConfig::PAYOUT_DECLINED,
+    ];
 
     /** Default footer template (untranslated fallback). Placeholders: {site} and {url}. */
     public const DEFAULT_FOOTER = '*Originally published at [{site}]({url}).*';
@@ -137,6 +146,15 @@ final class Settings {
      * Auto-publish to this chain when publishing in WordPress? Off by default:
      * the user decides when via the editor's manual button.
      */
+    /**
+     * How the author reward is taken on this chain: one of the GrapheneConfig
+     * PAYOUT_* modes. Only applies when creating a post.
+     */
+    public function payout( string $id ): string {
+        $value = (string) $this->get( $id, 'payout', GrapheneConfig::PAYOUT_DEFAULT );
+        return in_array( $value, self::PAYOUT_MODES, true ) ? $value : GrapheneConfig::PAYOUT_DEFAULT;
+    }
+
     public function autoPublish( string $id ): bool {
         return ! empty( $this->forConnector( $id )['auto_publish'] );
     }

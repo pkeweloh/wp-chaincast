@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Chaincast\Admin;
 
 use Throwable;
+use Chaincast\Connector\Graphene\GrapheneConfig;
 use Chaincast\Connector\Graphene\PrivateKey;
 use Chaincast\Core\ConnectorBootstrap;
 use Chaincast\Core\ConnectorRegistry;
@@ -84,8 +85,22 @@ final class SettingsPage {
      * Help icon with a CSS-styled tooltip (box), not the native title. The text
      * arrives already escaped for an attribute (esc_attr__), and may contain "%".
      */
+    /**
+     * The three modes the chain frontends offer. The liquid token is named
+     * generically because it differs per chain (HBD on Hive, SBD on Steem).
+     *
+     * @return array<string,string>
+     */
+    private function payoutLabels(): array {
+        return [
+            GrapheneConfig::PAYOUT_DEFAULT  => __( '50% liquid, 50% Power (chain default)', 'chaincast' ),
+            GrapheneConfig::PAYOUT_POWER_UP => __( '100% Power Up', 'chaincast' ),
+            GrapheneConfig::PAYOUT_DECLINED => __( 'Decline payout', 'chaincast' ),
+        ];
+    }
+
     private function renderHelp( string $textEscaped ): void {
-        echo '<span class="cc-help" tabindex="0" role="img" aria-label="' . $textEscaped . '" data-tip="' . $textEscaped . '">?</span>';
+        Assets::renderHelp( $textEscaped );
     }
 
     public function registerSettings(): void {
@@ -149,6 +164,7 @@ final class SettingsPage {
             $cfg = [
                 'enabled'         => ! empty( $in['enabled'] ) ? '1' : '',
                 'auto_publish'    => ! empty( $in['auto_publish'] ) ? '1' : '',
+                'payout'          => in_array( $in['payout'] ?? '', Settings::PAYOUT_MODES, true ) ? (string) $in['payout'] : GrapheneConfig::PAYOUT_DEFAULT,
                 'author'          => sanitize_text_field( (string) ( $in['author'] ?? '' ) ),
                 'default_tag'     => sanitize_title( (string) ( $in['default_tag'] ?? 'blog' ) ),
                 'category_map'    => $this->sanitizeCategoryMap( $in['category_map'] ?? [] ),
@@ -392,6 +408,21 @@ final class SettingsPage {
                     <?php $this->renderHelp( esc_attr__( 'Fallback community (parent_permlink) used when the post has no WordPress category. The first tag of the post on the chain.', 'chaincast' ) ); ?>
                 </th>
                 <td><input type="text" name="<?php echo esc_attr( "{$opt}[{$id}][default_tag]" ); ?>" value="<?php echo esc_attr( (string) ( $cfg['default_tag'] ?? 'blog' ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <?php echo esc_html__( 'Payout', 'chaincast' ); ?>
+                    <?php $this->renderHelp( esc_attr__( 'How the author reward is taken on this chain. Applied only when first publishing a post: the chain does not allow changing it afterwards.', 'chaincast' ) ); ?>
+                </th>
+                <td>
+                    <?php $payout = $this->settings->payout( $id ); ?>
+                    <select name="<?php echo esc_attr( "{$opt}[{$id}][payout]" ); ?>">
+                        <?php foreach ( $this->payoutLabels() as $value => $text ) : ?>
+                            <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $payout, $value ); ?>><?php echo esc_html( $text ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description"><?php echo esc_html__( 'Declining the payout publishes the post without collecting any reward.', 'chaincast' ); ?></p>
+                </td>
             </tr>
             <tr>
                 <th scope="row">

@@ -277,3 +277,21 @@ msgstr ""
 
 msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
 msgstr ""
+
+msgid "Payout"
+msgstr ""
+
+msgid "100% Power Up"
+msgstr ""
+
+msgid "How the author reward is taken on this chain. Applied only when first publishing a post: the chain does not allow changing it afterwards."
+msgstr ""
+
+msgid "50% liquid, 50% Power (chain default)"
+msgstr ""
+
+msgid "Decline payout"
+msgstr ""
+
+msgid "Declining the payout publishes the post without collecting any reward."
+msgstr ""

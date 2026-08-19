@@ -152,14 +152,18 @@ final class MetaBox {
     private function renderLinkOption( WP_Post $post ): void {
         wp_nonce_field( self::OPTIONS_NONCE, self::OPTIONS_NONCE );
 
+        echo '<p style="margin:0 0 10px">';
         printf(
-            '<p style="margin:0 0 10px"><label><input type="checkbox" name="%s" value="1"%s /> %s</label>'
-            . ' <span class="dashicons dashicons-editor-help cc-help" title="%s"></span></p>',
+            '<label><input type="checkbox" name="%s" value="1"%s /> %s</label> ',
             esc_attr( self::OPTIONS_FIELD ),
             checked( $this->publisher->shortenBareUrls( (int) $post->ID ), true, false ),
-            esc_html__( 'Shorten bare links', 'chaincast' ),
-            esc_attr__( 'Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL.', 'chaincast' )
+            esc_html__( 'Shorten bare links', 'chaincast' )
         );
+        Assets::renderHelp(
+            esc_attr__( 'Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL.', 'chaincast' ),
+            true
+        );
+        echo '</p>';
     }
 
     /**

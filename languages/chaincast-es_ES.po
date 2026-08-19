@@ -277,3 +277,21 @@ msgstr "Acortar enlaces desnudos"
 
 msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
 msgstr "Solo afecta a los enlaces cuyo texto visible es la propia URL: se rotulan con su dominio y siguen apuntando a la URL completa."
+
+msgid "Payout"
+msgstr "Forma de cobro"
+
+msgid "100% Power Up"
+msgstr "100% Power Up"
+
+msgid "How the author reward is taken on this chain. Applied only when first publishing a post: the chain does not allow changing it afterwards."
+msgstr "Cómo se cobra la recompensa del autor en esta cadena. Se aplica solo al publicar el post por primera vez: la cadena no permite cambiarlo después."
+
+msgid "50% liquid, 50% Power (chain default)"
+msgstr "50% líquido, 50% Power (por defecto de la cadena)"
+
+msgid "Decline payout"
+msgstr "Declinar el pago"
+
+msgid "Declining the payout publishes the post without collecting any reward."
+msgstr "Declinar el pago publica el post sin cobrar ninguna recompensa."

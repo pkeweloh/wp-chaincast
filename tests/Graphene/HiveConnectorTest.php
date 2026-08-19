@@ -212,12 +212,158 @@ final class HiveConnectorTest extends TestCase {
         $this->assertSame( 'ya-existe', $result->ref );
     }
 
+    public function testFullPowerUpEmitsCommentOptionsWithoutBeneficiaries(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured, GrapheneConfig::PAYOUT_POWER_UP );
+
+        $payload = new PostPayload(
+            title: 'Todo a Power',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/todo-a-power',
+            wpPostId: 81,
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+
+        $ops = $captured['operations'];
+        $this->assertCount( 2, $ops, 'The payout mode needs comment_options even with no beneficiaries.' );
+        $this->assertSame( 'comment_options', $ops[1][0] );
+        $this->assertSame( 0, $ops[1][1]['percent_hbd'], '0 is 100% Power Up.' );
+        $this->assertSame( [], $ops[1][1]['extensions'] );
+
+        // The signature must be valid over the TWO-op transaction.
+        $serializer = new Serializer();
+        $serializer->transaction(
+            $captured['ref_block_num'],
+            $captured['ref_block_prefix'],
+            $captured['expiration'],
+            [ [ 'comment', $ops[0][1] ], [ 'comment_options', $ops[1][1] ] ]
+        );
+        $digest = hash( 'sha256', hex2bin( self::CHAIN_ID . $serializer->hex() ) );
+        $this->assertSame(
+            PublicKey::fromPrivateHex( self::$meta['test_priv_hex'] )->compressedHex(),
+            ( new Secp256k1() )->recoverPublic( $digest, $captured['signatures'][0] ),
+            'The power-up tx signature does not recover the signer.'
+        );
+    }
+
+    public function testFullPowerUpKeepsTheBeneficiaries(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured, GrapheneConfig::PAYOUT_POWER_UP );
+
+        $payload = new PostPayload(
+            title: 'Power y reparto',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/power-y-reparto',
+            wpPostId: 82,
+            beneficiaries: [ [ 'account' => 'algun-proyecto', 'weight' => 1000 ] ],
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $co = $captured['operations'][1][1];
+        $this->assertSame( 0, $co['percent_hbd'] );
+        $this->assertSame(
+            [ [ 'account' => 'algun-proyecto', 'weight' => 1000 ] ],
+            $co['extensions'][0][1]['beneficiaries']
+        );
+    }
+
+    public function testFullPowerUpIsNotSentOnAnEdit(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured, GrapheneConfig::PAYOUT_POWER_UP );
+
+        // extra['permlink'] present => it is an edit, and the chain only takes
+        // comment_options when the post is created.
+        $payload = new PostPayload(
+            title: 'Editado',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/ya-existe',
+            wpPostId: 83,
+            extra: [ 'permlink' => 'ya-existe' ],
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $this->assertCount( 1, $captured['operations'] );
+    }
+
+    public function testDeclinedPayoutZeroesTheMaxAcceptedPayout(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured, GrapheneConfig::PAYOUT_DECLINED );
+
+        $payload = new PostPayload(
+            title: 'Sin cobrar',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/sin-cobrar',
+            wpPostId: 85,
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $co = $captured['operations'][1][1];
+        $this->assertSame( '0.000 HBD', $co['max_accepted_payout'] );
+        $this->assertSame( 10000, $co['percent_hbd'], 'The split is moot with no reward: leave the default.' );
+    }
+
+    public function testDefaultPayoutSendsNoCommentOptions(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured );
+
+        $payload = new PostPayload(
+            title: 'Por defecto',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/por-defecto',
+            wpPostId: 84,
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $this->assertCount( 1, $captured['operations'], 'Nothing to say: the chain applies its own default.' );
+    }
+
     /**
      * Hive connector whose broadcast captures the emitted transaction in $captured.
      *
      * @param array<string,mixed>|null $captured
      */
-    private function connectorCapturing( mixed &$captured ): HiveConnector {
+    private function connectorCapturing( mixed &$captured, string $payout = GrapheneConfig::PAYOUT_DEFAULT ): HiveConnector {
         $transport = new FakeTransport(
             [
                 self::NODE => static function ( string $body ) use ( &$captured ): array {
@@ -247,6 +393,7 @@ final class HiveConnectorTest extends TestCase {
                 encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ),
                 defaultTag: 'blog',
                 nodes: [ self::NODE ],
+                payout: $payout,
             ),
             new RpcClient( [ self::NODE ], $transport ),
             $vault,

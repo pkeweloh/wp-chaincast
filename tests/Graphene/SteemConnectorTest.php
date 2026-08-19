@@ -45,6 +45,69 @@ final class SteemConnectorTest extends TestCase {
         );
     }
 
+    public function testFullPowerUpUsesTheSteemPercentField(): void {
+        // Arrange
+        $captured  = null;
+        $transport = new FakeTransport(
+            [
+                self::NODE => static function ( string $body ) use ( &$captured ): array {
+                    $req = json_decode( $body, true );
+                    return match ( $req['method'] ) {
+                        'condenser_api.get_dynamic_global_properties' => FakeTransport::okBody(
+                            [
+                                'head_block_number' => 4901,
+                                'head_block_id'     => '0000132589865678' . str_repeat( '0', 24 ),
+                                'time'              => '2026-06-14T18:00:00',
+                            ]
+                        ),
+                        'condenser_api.broadcast_transaction' => ( function () use ( $req, &$captured ): array {
+                            $captured = $req['params'][0];
+                            return FakeTransport::okBody( null );
+                        } )(),
+                        default => FakeTransport::okBody( null ),
+                    };
+                },
+            ]
+        );
+
+        $vault     = new Vault( 'test-secret' );
+        $connector = new SteemConnector(
+            new GrapheneConfig(
+                author: 'demo-author',
+                encryptedPostingKey: $vault->encrypt( self::$meta['test_priv_wif'] ),
+                defaultTag: 'blog',
+                nodes: [ self::NODE ],
+                payout: GrapheneConfig::PAYOUT_POWER_UP,
+            ),
+            new RpcClient( [ self::NODE ], $transport ),
+            $vault,
+            new Secp256k1(),
+            new PermlinkGenerator(),
+            new JsonMetadata(),
+        );
+
+        $payload = new PostPayload(
+            title: 'Todo a Power en Steem',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: '',
+            wpPostId: 91,
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $co = $captured['operations'][1][1];
+        $this->assertSame( 'comment_options', $captured['operations'][1][0] );
+        $this->assertSame( 0, $co['percent_steem_dollars'] );
+        $this->assertArrayNotHasKey( 'percent_hbd', $co, 'The Hive field must not travel to Steem.' );
+        $this->assertSame( '1000000.000 SBD', $co['max_accepted_payout'] );
+    }
+
     public function testPublishUsesSteemChainAndUrl(): void {
         // Arrange
         $captured = null;
