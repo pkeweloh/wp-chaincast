@@ -152,3 +152,42 @@
 .cc-benef-total { font-size: 12px; color: #646970; margin: 4px 0 0; }
 .cc-benef-total.over { color: #b32d2e; font-weight: 600; }
 .cc-benef-add { margin-top: 2px; }
+
+/* Post size against the chain limit (editor metabox). */
+.cc-size { margin: 0 0 12px; }
+.cc-size-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 6px;
+	font-size: 12px;
+}
+.cc-size-label { color: #646970; }
+.cc-size-pct { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cc-size-pct.near { color: #996800; }
+.cc-size-pct.over { color: #b32d2e; }
+.cc-size-track {
+	height: 8px;
+	margin: 4px 0;
+	border-radius: 4px;
+	background: #f0f0f1;
+	box-shadow: inset 0 0 0 1px #dcdcde;
+	overflow: hidden;
+}
+.cc-size-fill {
+	height: 100%;
+	border-radius: 4px;
+	background: #00a32a;
+}
+.cc-size-fill.near { background: #dba617; }
+.cc-size-fill.over { background: #d63638; }
+.cc-size-note { margin: 0; font-size: 12px; color: #646970; }
+.cc-size-note.over { color: #b32d2e; }
+
+/* Inline help icon, same idiom as core's side panels. */
+.cc-help {
+	color: #787c82;
+	cursor: help;
+	vertical-align: text-bottom;
+}
+.cc-help:hover { color: #2271b1; }

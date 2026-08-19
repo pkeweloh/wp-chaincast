@@ -11,6 +11,7 @@ namespace Chaincast\Tests\Content;
 
 use PHPUnit\Framework\TestCase;
 use Chaincast\Connector\Content\HtmlToMarkdown;
+use Chaincast\Connector\Content\MediaLinkConverter;
 
 final class HtmlToMarkdownTest extends TestCase {
 
@@ -153,6 +154,186 @@ final class HtmlToMarkdownTest extends TestCase {
             . "![Two](https://example.com/2.jpg)\n\n*Gallery caption*",
             $markdown
         );
+    }
+
+    public function testVideoBecomesALinkWithItsCaptionBelow(): void {
+        // Arrange
+        $html = '<figure class="wp-block-video">'
+            . '<video controls src="https://example.com/video-plan.mp4"></video>'
+            . '<figcaption class="wp-element-caption">The plan explained</figcaption></figure>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame(
+            "\u{1F4F9} [Watch video](https://example.com/video-plan.mp4)\n\n*The plan explained*",
+            $markdown
+        );
+    }
+
+    public function testVideoLabelIsTheInjectedOne(): void {
+        // Arrange
+        $converter = new HtmlToMarkdown( new MediaLinkConverter( 'Ver vídeo', 'Escuchar audio' ) );
+        $html      = '<figure class="wp-block-video"><video controls src="https://example.com/v.mp4"></video></figure>';
+
+        // Act
+        $markdown = $converter->convert( $html );
+
+        // Assert
+        $this->assertSame( "\u{1F4F9} [Ver vídeo](https://example.com/v.mp4)", $markdown );
+    }
+
+    public function testAudioWithNestedSourceIsAlsoLinked(): void {
+        // Arrange
+        $html = '<figure class="wp-block-audio"><audio controls><source src="https://example.com/a.mp3" type="audio/mpeg"/></audio></figure>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( "\u{1F50A} [Listen to audio](https://example.com/a.mp3)", $markdown );
+    }
+
+    public function testMediaWithoutSourceDisappearsInsteadOfLeavingAnEmptyLink(): void {
+        // Arrange
+        $html = '<p>Before.</p><figure class="wp-block-video"><video controls></video></figure><p>After.</p>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( "Before.\n\nAfter.", $markdown );
+    }
+
+    public function testFileBlockKeepsTheDescriptiveLinkAndDropsTheDownloadButton(): void {
+        // Arrange
+        $html = '<div class="wp-block-file">'
+            . '<a id="wp-block-file--media-x" href="https://example.com/list.xlsx">List of 559 dams (spreadsheet)</a>'
+            . '<a href="https://example.com/list.xlsx" class="wp-block-file__button wp-element-button" download '
+            . 'aria-describedby="wp-block-file--media-x">Download</a></div>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame(
+            '[List of 559 dams (spreadsheet)](https://example.com/list.xlsx)',
+            $markdown
+        );
+    }
+
+    public function testPdfFileBlockDropsTheEmbedAndKeepsOneLink(): void {
+        // Arrange
+        $html = '<div class="wp-block-file">'
+            . '<object class="wp-block-file__embed" data="https://example.com/doc.pdf" type="application/pdf" '
+            . 'aria-label="Summary"></object>'
+            . '<a id="wp-block-file--media-y" href="https://example.com/doc.pdf">Summary of the conversation</a>'
+            . '<a href="https://example.com/doc.pdf" class="wp-block-file__button wp-element-button" download>Download</a></div>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( '[Summary of the conversation](https://example.com/doc.pdf)', $markdown );
+    }
+
+    public function testOrdinaryLinksAreUntouched(): void {
+        // Arrange
+        $html = '<p>See <a href="https://example.com/report">the report</a>.</p>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'See [the report](https://example.com/report).', $markdown );
+    }
+
+    public function testBareUrlKeepsItsFullTextByDefault(): void {
+        // Arrange
+        $html = '<p>Source:<br><a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524">'
+            . 'https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524</a></p>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertStringContainsString(
+            '[https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524](https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524)',
+            $markdown
+        );
+    }
+
+    public function testBareUrlIsRelabelledWithItsDomainWhenEnabled(): void {
+        // Arrange
+        $converter = new HtmlToMarkdown();
+        $converter->shortenBareUrls( true );
+        $html = '<p>Source:<br><a href="https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524">'
+            . 'https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524</a></p>';
+
+        // Act
+        $markdown = $converter->convert( $html );
+
+        // Assert
+        $this->assertSame(
+            "Source:  \n[boe.es](https://www.boe.es/buscar/doc.php?id=DOUE-L-2000-82524)",
+            $markdown
+        );
+    }
+
+    public function testShorteningLeavesLinksThatHaveRealTextAlone(): void {
+        // Arrange
+        $converter = new HtmlToMarkdown();
+        $converter->shortenBareUrls( true );
+        $html = '<p>See <a href="https://example.com/report">the full report</a>.</p>';
+
+        // Act
+        $markdown = $converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'See [the full report](https://example.com/report).', $markdown );
+    }
+
+    public function testShorteningAlsoCoversATruncatedUrlAsLinkText(): void {
+        // Arrange
+        $converter = new HtmlToMarkdown();
+        $converter->shortenBareUrls( true );
+        $html = '<p><a href="https://sede.miteco.gob.es/portal/site/seMITECO/ficha?id=226&amp;by=theme">'
+            . 'https://sede.miteco.gob.es/portal/site/seMITECO/ficha?id=226</a></p>';
+
+        // Act
+        $markdown = $converter->convert( $html );
+
+        // Assert
+        $this->assertSame(
+            '[sede.miteco.gob.es](https://sede.miteco.gob.es/portal/site/seMITECO/ficha?id=226&by=theme)',
+            $markdown
+        );
+    }
+
+    public function testShorteningCanBeTurnedBackOffOnTheSameConverter(): void {
+        // Arrange
+        $html = '<p><a href="https://example.com/a/b">https://example.com/a/b</a></p>';
+        $this->converter->shortenBareUrls( true );
+
+        // Act
+        $this->converter->shortenBareUrls( false );
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( '[https://example.com/a/b](https://example.com/a/b)', $markdown );
+    }
+
+    public function testCarriageReturnsDoNotIndentTheOutput(): void {
+        // Arrange
+        $html = "<!-- wp:paragraph -->\r\n<p>One.</p>\r\n<!-- /wp:paragraph -->\r\n\r\n"
+            . "<!-- wp:paragraph -->\r\n<p>Two.</p>\r\n<!-- /wp:paragraph -->";
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( "One.\n\nTwo.", $markdown );
     }
 
     public function testAppendFooterSeparatesItWithARule(): void {

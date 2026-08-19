@@ -25,6 +25,27 @@ final class PostState {
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_FAILED    = 'failed';
 
+    /** Per-post override of the bare-link setting: '1', '0' or absent (inherit). */
+    private const META_SHORTEN_URLS = '_chaincast_shorten_urls';
+
+    /**
+     * Per-post choice on shortening bare links, or null to follow the global one.
+     */
+    public function shortenBareUrls( int $postId ): ?bool {
+        $value = get_post_meta( $postId, self::META_SHORTEN_URLS, true );
+        if ( '1' === $value ) {
+            return true;
+        }
+        if ( '0' === $value ) {
+            return false;
+        }
+        return null;
+    }
+
+    public function setShortenBareUrls( int $postId, bool $value ): void {
+        update_post_meta( $postId, self::META_SHORTEN_URLS, $value ? '1' : '0' );
+    }
+
     private static function metaKey( string $connectorId ): string {
         return self::META_PREFIX . $connectorId;
     }

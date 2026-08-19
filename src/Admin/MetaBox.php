@@ -25,6 +25,8 @@ final class MetaBox {
     private const ID               = 'chaincast-box';
     private const ACTION           = 'chaincast_publish_now';
     private const ACTION_CLEAR_LOG = 'chaincast_clear_log';
+    private const OPTIONS_NONCE    = 'chaincast_post_options_nonce';
+    private const OPTIONS_FIELD    = 'chaincast_shorten_urls';
 
     private PostState $state;
     private PublishLog $log;
@@ -41,6 +43,7 @@ final class MetaBox {
         add_action( 'add_meta_boxes', [ $this, 'add' ] );
         add_action( 'admin_post_' . self::ACTION, [ $this, 'handlePublishNow' ] );
         add_action( 'admin_post_' . self::ACTION_CLEAR_LOG, [ $this, 'handleClearLog' ] );
+        add_action( 'save_post', [ $this, 'saveOptions' ], 10, 2 );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue' ] );
     }
 
@@ -71,12 +74,108 @@ final class MetaBox {
             return;
         }
 
+        $this->renderSizeWarning( $post, $all );
+        $this->renderLinkOption( $post );
+
         echo '<hr>';
         foreach ( $all as $connector ) {
             $this->renderConnectorRow( $post, $connector );
         }
 
         $this->renderLog( $post );
+    }
+
+    /**
+     * Size of the post against the chain limit. Silent while the post is nowhere
+     * near it, since measuring means rendering the whole post.
+     *
+     * @param ConnectorInterface[] $connectors
+     */
+    private function renderSizeWarning( WP_Post $post, array $connectors ): void {
+        $limit = 0;
+        foreach ( $connectors as $connector ) {
+            $max = $connector->maxPayloadBytes();
+            if ( $max > 0 && ( 0 === $limit || $max < $limit ) ) {
+                $limit = $max;
+            }
+        }
+
+        // The Markdown is always smaller than the block markup it comes from, so
+        // a short post is not worth rendering just to measure it.
+        if ( 0 === $limit || strlen( $post->post_content ) <= intdiv( $limit, 3 ) ) {
+            return;
+        }
+
+        $bytes = $this->publisher->payloadBytes( (int) $post->ID );
+        if ( $bytes <= 0 ) {
+            return;
+        }
+
+        $percent = (int) round( $bytes / $limit * 100 );
+        $level   = $bytes > $limit ? ' over' : ( $percent >= 75 ? ' near' : '' );
+
+        echo '<div class="cc-size">';
+        printf(
+            '<div class="cc-size-head"><span class="cc-size-label">%s</span><span class="cc-size-pct%s">%s</span></div>',
+            esc_html__( 'Size on the chain', 'chaincast' ),
+            esc_attr( $level ),
+            esc_html( sprintf( '%d%%', $percent ) )
+        );
+        printf(
+            '<div class="cc-size-track"><div class="cc-size-fill%s" style="width:%d%%"></div></div>',
+            esc_attr( $level ),
+            min( 100, max( 2, $percent ) )
+        );
+        printf(
+            '<p class="cc-size-note%s">%s</p>',
+            esc_attr( $level ),
+            esc_html(
+                ' over' === $level
+                    ? __( 'It does not fit. Shorten the text: images and video barely count, only their URL travels.', 'chaincast' )
+                    : sprintf(
+                        /* translators: 1: post size, 2: chain limit, both already formatted (e.g. "36 KB"). */
+                        __( '%1$s of %2$s', 'chaincast' ),
+                        size_format( $bytes, 1 ),
+                        size_format( $limit )
+                    )
+            )
+        );
+        echo '</div>';
+    }
+
+    /**
+     * Per-post choice on shortening bare links: it depends on how tight this
+     * article is against the size limit, so it does not belong in the settings.
+     * Starts off from the site setting and, once the post is saved, stays where
+     * the author left it.
+     */
+    private function renderLinkOption( WP_Post $post ): void {
+        wp_nonce_field( self::OPTIONS_NONCE, self::OPTIONS_NONCE );
+
+        printf(
+            '<p style="margin:0 0 10px"><label><input type="checkbox" name="%s" value="1"%s /> %s</label>'
+            . ' <span class="dashicons dashicons-editor-help cc-help" title="%s"></span></p>',
+            esc_attr( self::OPTIONS_FIELD ),
+            checked( $this->publisher->shortenBareUrls( (int) $post->ID ), true, false ),
+            esc_html__( 'Shorten bare links', 'chaincast' ),
+            esc_attr__( 'Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL.', 'chaincast' )
+        );
+    }
+
+    /**
+     * Saves the per-post options with the post itself.
+     */
+    public function saveOptions( int $postId, WP_Post $post ): void {
+        if ( 'post' !== $post->post_type || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
+            return;
+        }
+
+        $nonce = isset( $_POST[ self::OPTIONS_NONCE ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::OPTIONS_NONCE ] ) ) : '';
+        if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::OPTIONS_NONCE ) || ! current_user_can( 'edit_post', $postId ) ) {
+            return;
+        }
+
+        $this->state->setShortenBareUrls( $postId, ! empty( $_POST[ self::OPTIONS_FIELD ] ) );
     }
 
     /**

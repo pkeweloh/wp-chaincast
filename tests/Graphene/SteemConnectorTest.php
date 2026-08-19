@@ -13,6 +13,7 @@ namespace Chaincast\Tests\Graphene;
 use PHPUnit\Framework\TestCase;
 use Chaincast\Connector\Content\JsonMetadata;
 use Chaincast\Connector\Content\PermlinkGenerator;
+use Chaincast\Connector\Graphene\AbstractGrapheneConnector;
 use Chaincast\Connector\Graphene\GrapheneConfig;
 use Chaincast\Connector\Graphene\PublicKey;
 use Chaincast\Connector\Graphene\Serializer;
@@ -34,6 +35,14 @@ final class SteemConnectorTest extends TestCase {
     public static function setUpBeforeClass(): void {
         $v          = json_decode( (string) file_get_contents( __DIR__ . '/../fixtures/golden-vectors.json' ), true, 512, JSON_THROW_ON_ERROR );
         self::$meta = $v['meta'];
+    }
+
+    public function testSteemHasTheSameTransactionSizeLimitAsHive(): void {
+        // Both chains cap a transaction at 64 KiB; Steem does not override it.
+        $this->assertSame(
+            AbstractGrapheneConnector::MAX_TRANSACTION_BYTES,
+            ( new SteemConnector( new GrapheneConfig( author: 'demo-author' ), new RpcClient( [ self::NODE ], new FakeTransport( [ self::NODE => FakeTransport::okBody( null ) ] ) ), new Vault( 'test-secret' ), new Secp256k1(), new PermlinkGenerator(), new JsonMetadata() ) )->maxPayloadBytes()
+        );
     }
 
     public function testPublishUsesSteemChainAndUrl(): void {

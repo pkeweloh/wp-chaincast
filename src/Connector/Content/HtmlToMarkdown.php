@@ -19,14 +19,17 @@ final class HtmlToMarkdown {
 
     private HtmlConverter $converter;
 
-    public function __construct() {
+    public function __construct(
+        MediaLinkConverter $media = new MediaLinkConverter(),
+    ) {
         $this->converter = new HtmlConverter(
             [
-                'strip_tags'      => true,   // drop non-convertible tags instead of leaving raw HTML.
-                'remove_nodes'    => 'script style',
-                'hard_break'      => false,  // counter-intuitive: false is the real hard break, true emits a soft one.
-                'use_autolinks'   => false,
-                'header_style'    => 'atx',  // '# H1' instead of underline.
+                'strip_tags'                  => true,   // drop non-convertible tags instead of leaving raw HTML.
+                'remove_nodes'                => 'script style',
+                'hard_break'                  => false,  // counter-intuitive: false is the real hard break, true emits a soft one.
+                'use_autolinks'               => false,
+                'header_style'                => 'atx',  // '# H1' instead of underline.
+                LinkConverter::SHORTEN_OPTION => false,
             ]
         );
 
@@ -34,11 +37,23 @@ final class HtmlToMarkdown {
         // Not part of the library defaults; without it table cells collapse into a
         // single run of text.
         $environment->addConverter( new TableConverter() );
+        $environment->addConverter( new LinkConverter() );
+        $environment->addConverter( $media );
         $environment->addConverter( new FigureConverter() );
         $environment->addConverter( new FigcaptionConverter() );
     }
 
+    /**
+     * Decided per post, not per site: on a long article every byte counts, on a
+     * short one the author may prefer the URL as written.
+     */
+    public function shortenBareUrls( bool $enabled ): void {
+        $this->converter->getConfig()->setOption( LinkConverter::SHORTEN_OPTION, $enabled );
+    }
+
     public function convert( string $html ): string {
+        // A CRLF source leaks its carriage returns as leading spaces on every line.
+        $html = str_replace( [ "\r\n", "\r" ], "\n", $html );
         return trim( $this->converter->convert( $html ) );
     }
 

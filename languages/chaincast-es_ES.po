@@ -246,3 +246,34 @@ msgstr "En cola…"
 
 msgid "Not published"
 msgstr "No publicado"
+
+msgid "Watch video"
+msgstr "Ver vídeo"
+
+msgid "Listen to audio"
+msgstr "Escuchar audio"
+
+msgid "Bare links"
+msgstr "Enlaces desnudos"
+
+msgid "Show only the domain when the link text is the URL itself"
+msgstr "Mostrar solo el dominio cuando el texto del enlace es la propia URL"
+
+msgid "Default for new posts, overridable in each post. Reads better in a list of sources and saves bytes against the chain size limit; the link still points to the full URL."
+msgstr "Valor por defecto para los posts nuevos, ajustable en cada post. Se lee mejor en una lista de fuentes y ahorra bytes frente al límite de tamaño de la cadena; el enlace sigue apuntando a la URL completa."
+
+msgid "Size on the chain"
+msgstr "Tamaño en la cadena"
+
+#. translators: 1: post size, 2: chain limit, both already formatted (e.g. "36 KB").
+msgid "%1$s of %2$s"
+msgstr "%1$s de %2$s"
+
+msgid "It does not fit. Shorten the text: images and video barely count, only their URL travels."
+msgstr "No cabe. Acorta el texto: las imágenes y el vídeo casi no cuentan, solo viaja su URL."
+
+msgid "Shorten bare links"
+msgstr "Acortar enlaces desnudos"
+
+msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
+msgstr "Solo afecta a los enlaces cuyo texto visible es la propia URL: se rotulan con su dominio y siguen apuntando a la URL completa."

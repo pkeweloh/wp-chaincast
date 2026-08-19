@@ -29,11 +29,14 @@ final class PayloadFactory {
      * @param string                $footerTemplate       Footer template with {site}/{url} placeholders; empty: no footer.
      * @param string                $beneficiariesDefault Global beneficiaries (text) used when the post has no override.
      * @param array<string,string>  $categoryMap          WP slug => chain tag/community map for the automatic tags.
+     * @param bool                  $shortenBareUrls      Relabel links whose text is the bare URL with their domain.
      */
-    public function fromPost( WP_Post $post, string $siteName, string $permlinkOverride = '', string $footerTemplate = '', string $beneficiariesDefault = '', array $categoryMap = [] ): PostPayload {
+    public function fromPost( WP_Post $post, string $siteName, string $permlinkOverride = '', string $footerTemplate = '', string $beneficiariesDefault = '', array $categoryMap = [], bool $shortenBareUrls = false ): PostPayload {
         $canonical = (string) get_permalink( $post );
         $html      = (string) apply_filters( 'the_content', $post->post_content );
-        $body      = $this->markdown->convert( $html );
+
+        $this->markdown->shortenBareUrls( $shortenBareUrls );
+        $body = $this->markdown->convert( $html );
         $featured  = $this->featuredImage( $post );
 
         if ( '' !== trim( $footerTemplate ) ) {

@@ -75,6 +75,14 @@ final class Settings {
     }
 
     /**
+     * Relabel a link whose visible text is the bare URL with just its domain?
+     * Off by default: the URL travels as the author wrote it.
+     */
+    public function shortenBareUrls(): bool {
+        return ! empty( $this->general()['shorten_urls'] );
+    }
+
+    /**
      * Footer template (with {site} and {url} placeholders). If empty, uses the
      * default.
      */

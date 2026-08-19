@@ -50,6 +50,12 @@ interface ConnectorInterface {
     public function validateCredentials(): Result;
 
     /**
+     * Hard size limit the chain puts on a single publication, in bytes, or 0 if
+     * it has none. Same for every account: it cannot be raised.
+     */
+    public function maxPayloadBytes(): int;
+
+    /**
      * Automatic mode: serializes, signs and broadcasts the transaction.
      */
     public function publish(PostPayload $post): PublishResult;

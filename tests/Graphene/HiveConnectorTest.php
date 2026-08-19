@@ -14,6 +14,7 @@ namespace Chaincast\Tests\Graphene;
 use PHPUnit\Framework\TestCase;
 use Chaincast\Connector\Content\JsonMetadata;
 use Chaincast\Connector\Content\PermlinkGenerator;
+use Chaincast\Connector\Graphene\AbstractGrapheneConnector;
 use Chaincast\Connector\Graphene\GrapheneConfig;
 use Chaincast\Connector\Graphene\HiveConnector;
 use Chaincast\Connector\Graphene\PublicKey;
@@ -253,6 +254,31 @@ final class HiveConnectorTest extends TestCase {
             new PermlinkGenerator(),
             new JsonMetadata(),
         );
+    }
+
+    public function testPublishRefusesABodyOverTheChainLimit(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured );
+
+        $payload = new PostPayload(
+            title: 'Artículo larguísimo',
+            body: str_repeat( 'a', AbstractGrapheneConnector::MAX_TRANSACTION_BYTES + 1 ),
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/larguisimo',
+            wpPostId: 99,
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertFalse( $result->success );
+        $this->assertNull( $captured, 'An oversized transaction must not be broadcast.' );
+        $this->assertStringContainsString( (string) AbstractGrapheneConnector::MAX_TRANSACTION_BYTES, (string) $result->error );
+        $this->assertFalse( $result->retryable, 'Retrying will not make the post smaller.' );
     }
 
     public function testPublishFailsGracefullyWithoutPostingKey(): void {

@@ -22,6 +22,9 @@ use Chaincast\Core\State\PublishLog;
 
 final class PublishService {
 
+    /** Permlink, author, tags and json_metadata wrapper around the body. */
+    private const OPERATION_OVERHEAD_BYTES = 512;
+
     public function __construct(
         private ConnectorRegistry $connectors,
         private PayloadFactory $payloads,
@@ -50,7 +53,7 @@ final class PublishService {
         $action = '' !== $permlink ? 'update' : 'publish';
 
         try {
-            $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ) );
+            $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ) );
             $result  = $connector->publish( $payload );
         } catch ( Throwable $e ) {
             $message = 'Exception while publishing: ' . $e->getMessage();
@@ -66,6 +69,33 @@ final class PublishService {
         }
 
         return $result;
+    }
+
+    /**
+     * Approximate size of the publication on the chain, in bytes. The body
+     * dominates; the rest of the operation goes in as a fixed allowance.
+     */
+    public function payloadBytes( int $postId ): int {
+        $post = get_post( $postId );
+        if ( null === $post ) {
+            return 0;
+        }
+
+        $footer  = $this->settings->footerEnabled() ? $this->settings->footerText() : '';
+        $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), '', $footer, '', [], $this->shortenBareUrls( $postId ) );
+
+        return strlen( $payload->title )
+            + strlen( $payload->body )
+            + strlen( implode( ',', $payload->images ) )
+            + self::OPERATION_OVERHEAD_BYTES;
+    }
+
+    /**
+     * The post's own choice on shortening bare links, falling back to the global
+     * setting when it has none.
+     */
+    public function shortenBareUrls( int $postId ): bool {
+        return $this->state->shortenBareUrls( $postId ) ?? $this->settings->shortenBareUrls();
     }
 
     /**
@@ -85,7 +115,7 @@ final class PublishService {
         $permlink = is_string( $existing['ref'] ?? null ) ? $existing['ref'] : '';
         $footer   = $this->settings->footerEnabled() ? $this->settings->footerText() : '';
 
-        $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ) );
+        $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ) );
         $req     = $connector->buildSigningRequest( $payload );
 
         return [

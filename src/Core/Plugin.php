@@ -13,6 +13,7 @@ use Chaincast\Admin\KeychainController;
 use Chaincast\Admin\MetaBox;
 use Chaincast\Admin\SettingsPage;
 use Chaincast\Connector\Content\HtmlToMarkdown;
+use Chaincast\Connector\Content\MediaLinkConverter;
 use Chaincast\Connector\PayloadFactory;
 use Chaincast\Core\State\PostState;
 use Chaincast\Frontend\ChainLinks;
@@ -40,7 +41,14 @@ final class Plugin {
 
         $publisher = new PublishService(
             $this->connectors,
-            new PayloadFactory( new HtmlToMarkdown() ),
+            new PayloadFactory(
+                new HtmlToMarkdown(
+                    new MediaLinkConverter(
+                        __( 'Watch video', 'chaincast' ),
+                        __( 'Listen to audio', 'chaincast' )
+                    )
+                )
+            ),
             new PostState(),
             $this->settingsRepo
         );

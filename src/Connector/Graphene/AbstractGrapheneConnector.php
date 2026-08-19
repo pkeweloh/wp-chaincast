@@ -31,6 +31,12 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
     /** 100% in basis points (percent_hbd/percent_steem_dollars of comment_options). */
     private const FULL_PERCENT = 10000;
 
+    /** Maximum transaction size on Hive and Steem. A protocol limit, not an account one. */
+    public const MAX_TRANSACTION_BYTES = 65536;
+
+    /** Signature count byte plus the compact signature that go with the serialized ops. */
+    private const SIGNATURE_BYTES = 66;
+
     public function __construct(
         protected GrapheneConfig $config,
         protected RpcClient $rpc,
@@ -100,6 +106,10 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         return Result::ok( [ 'public_key' => $derived ] );
     }
 
+    public function maxPayloadBytes(): int {
+        return self::MAX_TRANSACTION_BYTES;
+    }
+
     public function publish( PostPayload $post ): PublishResult {
         if ( ! $this->supportsAutomatic() ) {
             return PublishResult::failure( 'Automatic mode unavailable for ' . $this->id() . '.' );
@@ -144,6 +154,18 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         }
 
         $signedTx = $this->buildSignedTransaction( $ref, $expiration, $ops, $priv );
+
+        // The node rejects an oversized transaction without a usable reason, and
+        // retrying will not make it smaller.
+        if ( $signedTx['size'] > self::MAX_TRANSACTION_BYTES ) {
+            return PublishResult::failure(
+                sprintf(
+                    'The post does not fit on the chain: %d bytes against a limit of %d. Shorten the text; images and video barely count, only their URL travels.',
+                    $signedTx['size'],
+                    self::MAX_TRANSACTION_BYTES
+                )
+            );
+        }
 
         try {
             $this->rpc->broadcastTransaction( $signedTx['tx'] );
@@ -300,7 +322,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
      * @param array{ref_block_num:int,ref_block_prefix:int}                                        $ref
      * @param array<int,array{name:string,serialize:array<string,mixed>,broadcast?:array<string,mixed>}> $ops
      *
-     * @return array{tx:array<string,mixed>,trx_id:string}
+     * @return array{tx:array<string,mixed>,trx_id:string,size:int}
      */
     protected function buildSignedTransaction( array $ref, string $expiration, array $ops, PrivateKey $priv ): array {
         $serializeOps = [];
@@ -324,6 +346,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         $trxId         = substr( hash( 'sha256', hex2bin( $serializedHex ) ), 0, 40 );
 
         return [
+            'size'   => intdiv( strlen( $serializedHex ), 2 ) + self::SIGNATURE_BYTES,
             'tx'     => [
                 'ref_block_num'    => $ref['ref_block_num'],
                 'ref_block_prefix' => $ref['ref_block_prefix'],

@@ -168,6 +168,7 @@ final class SettingsPage {
         $result['general'] = [
             'footer_enabled' => ! empty( $generalIn['footer_enabled'] ) ? '1' : '',
             'footer_text'    => sanitize_text_field( (string) ( $generalIn['footer_text'] ?? '' ) ),
+            'shorten_urls'   => ! empty( $generalIn['shorten_urls'] ) ? '1' : '',
         ];
 
         return $result;
@@ -265,6 +266,18 @@ final class SettingsPage {
                                         '<code>{url}</code>'
                                     );
                                     ?>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__( 'Bare links', 'chaincast' ); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="<?php echo esc_attr( Settings::OPTION ); ?>[general][shorten_urls]" value="1" <?php checked( ! empty( $general['shorten_urls'] ) ); ?> />
+                                    <?php echo esc_html__( 'Show only the domain when the link text is the URL itself', 'chaincast' ); ?>
+                                </label>
+                                <p class="description">
+                                    <?php echo esc_html__( 'Default for new posts, overridable in each post. Reads better in a list of sources and saves bytes against the chain size limit; the link still points to the full URL.', 'chaincast' ); ?>
                                 </p>
                             </td>
                         </tr>

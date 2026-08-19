@@ -246,3 +246,34 @@ msgstr ""
 
 msgid "Not published"
 msgstr ""
+
+msgid "Watch video"
+msgstr ""
+
+msgid "Listen to audio"
+msgstr ""
+
+msgid "Bare links"
+msgstr ""
+
+msgid "Show only the domain when the link text is the URL itself"
+msgstr ""
+
+msgid "Default for new posts, overridable in each post. Reads better in a list of sources and saves bytes against the chain size limit; the link still points to the full URL."
+msgstr ""
+
+msgid "Size on the chain"
+msgstr ""
+
+#. translators: 1: post size, 2: chain limit, both already formatted (e.g. "36 KB").
+msgid "%1$s of %2$s"
+msgstr ""
+
+msgid "It does not fit. Shorten the text: images and video barely count, only their URL travels."
+msgstr ""
+
+msgid "Shorten bare links"
+msgstr ""
+
+msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
+msgstr ""
