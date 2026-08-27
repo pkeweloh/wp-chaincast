@@ -1,12 +1,15 @@
 <?php
 /**
- * Link conversion with two WordPress-specific adjustments.
+ * Link conversion with the WordPress-specific adjustments.
  *
  * The file block renders its link twice, once with the descriptive text and once
  * as a "Download" button, which on the chain is the same URL twice in a row: the
- * button goes. And when the SHORTEN_OPTION is on, a link whose visible text is
- * the bare URL is relabelled with its domain, which reads better and saves bytes
- * in a list of sources. Everything else converts as usual.
+ * button goes. A bare link to a video provider is emitted naked, because that is
+ * the only form the chains turn into a player. An internal link can be pointed at
+ * the same article on the destination chain, when a resolver is given. And when
+ * the SHORTEN_OPTION is on, a link whose visible text is the bare URL is
+ * relabelled with its domain, which reads better and saves bytes in a list of
+ * sources. Everything else converts as usual.
  *
  * @package Chaincast\Connector\Content
  */
@@ -25,20 +28,59 @@ final class LinkConverter extends BaseLinkConverter {
 
     private const FILE_BUTTON_CLASS = 'wp-block-file__button';
 
+    /** @var null|callable(string):string Href in, replacement href out ('' to keep it). */
+    private $resolver = null;
+
+    /**
+     * @param null|callable(string):string $resolver
+     */
+    public function resolveHrefWith( ?callable $resolver ): void {
+        $this->resolver = $resolver;
+    }
+
     public function convert( ElementInterface $element ): string {
         if ( str_contains( $element->getAttribute( 'class' ), self::FILE_BUTTON_CLASS ) ) {
             return '';
         }
 
-        if ( $this->config->getOption( self::SHORTEN_OPTION, false ) ) {
-            $href = $element->getAttribute( 'href' );
-            $host = $this->isBareUrl( trim( $element->getValue() ) ) ? $this->host( $href ) : '';
+        $original = $element->getAttribute( 'href' );
+        $href     = $original;
+        $text     = trim( $element->getValue() );
+
+        $replacement = $this->resolve( $href );
+        if ( '' !== $replacement ) {
+            // The text was the URL itself, so it has to travel to the new target too.
+            if ( $this->isBareUrl( $text ) ) {
+                $text = $replacement;
+            }
+            $href = $replacement;
+        }
+
+        // Naked and alone in its paragraph: the chains build the player from this
+        // and from nothing else. Shortening it here would kill the video.
+        if ( $this->isBareUrl( $text ) && EmbedProviders::isEmbeddable( $href ) ) {
+            return EmbedProviders::withScheme( $href );
+        }
+
+        if ( $this->config->getOption( self::SHORTEN_OPTION, false ) && $this->isBareUrl( $text ) ) {
+            $host = $this->host( $href );
             if ( '' !== $host ) {
                 return '[' . $host . '](' . $href . ')';
             }
         }
 
-        return parent::convert( $element );
+        if ( $href === $original ) {
+            return parent::convert( $element );
+        }
+
+        return '[' . $text . '](' . $href . ')';
+    }
+
+    private function resolve( string $href ): string {
+        if ( '' === $href || null === $this->resolver ) {
+            return '';
+        }
+        return (string) ( $this->resolver )( $href );
     }
 
     private function isBareUrl( string $text ): bool {

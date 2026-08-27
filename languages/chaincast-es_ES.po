@@ -275,7 +275,7 @@ msgstr "No cabe. Acorta el texto: las imágenes y el vídeo casi no cuentan, sol
 msgid "Shorten bare links"
 msgstr "Acortar enlaces desnudos"
 
-msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
+msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL. Video links are left alone, so the player survives."
 msgstr "Solo afecta a los enlaces cuyo texto visible es la propia URL: se rotulan con su dominio y siguen apuntando a la URL completa."
 
 msgid "Payout"
@@ -295,3 +295,18 @@ msgstr "Declinar el pago"
 
 msgid "Declining the payout publishes the post without collecting any reward."
 msgstr "Declinar el pago publica el post sin cobrar ninguna recompensa."
+
+msgid "Internal links to the chain"
+msgstr "Enlaces internos a la cadena"
+
+msgid "A link to another post of this site points at the same post on the chain being published to. If it is not published there, the link to the blog stays."
+msgstr "Un enlace a otra entrada de este sitio apunta a esa misma entrada en la cadena a la que se publica. Si allí no está publicada, se queda el enlace al blog."
+
+msgid "Internal links"
+msgstr "Enlaces internos"
+
+msgid "Point links to your own posts at the same post on the chain"
+msgstr "Apuntar los enlaces a tus propias entradas a esa misma entrada en la cadena"
+
+msgid "Default for new posts, overridable in each post. A post not published on that chain keeps its link to the blog. Images and files are never touched."
+msgstr "Valor por defecto de las entradas nuevas, ajustable en cada una. Una entrada que no esté publicada en esa cadena conserva su enlace al blog. Las imágenes y los ficheros no se tocan nunca."

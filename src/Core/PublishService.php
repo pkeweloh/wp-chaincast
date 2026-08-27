@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Chaincast\Core;
 
 use Throwable;
+use Chaincast\Connector\Content\InternalLinkResolver;
 use Chaincast\Connector\PayloadFactory;
 use Chaincast\Connector\PublishResult;
 use Chaincast\Core\State\PostState;
@@ -53,7 +54,7 @@ final class PublishService {
         $action = '' !== $permlink ? 'update' : 'publish';
 
         try {
-            $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ) );
+            $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ), $this->internalLinkResolver( $postId, $connectorId ) );
             $result  = $connector->publish( $payload );
         } catch ( Throwable $e ) {
             $message = 'Exception while publishing: ' . $e->getMessage();
@@ -99,6 +100,21 @@ final class PublishService {
     }
 
     /**
+     * Same as above for the internal links, which are rewritten per chain: the
+     * resolver needs to know which one it is publishing to.
+     */
+    public function rewriteInternalLinks( int $postId ): bool {
+        return $this->state->rewriteInternalLinks( $postId ) ?? $this->settings->rewriteInternalLinks();
+    }
+
+    private function internalLinkResolver( int $postId, string $connectorId ): ?InternalLinkResolver {
+        if ( ! $this->rewriteInternalLinks( $postId ) ) {
+            return null;
+        }
+        return new InternalLinkResolver( $connectorId, $this->state );
+    }
+
+    /**
      * Assisted mode (Keychain): prepares the operation to sign in the browser.
      * Does not touch the posting key or the network.
      *
@@ -115,7 +131,7 @@ final class PublishService {
         $permlink = is_string( $existing['ref'] ?? null ) ? $existing['ref'] : '';
         $footer   = $this->settings->footerEnabled() ? $this->settings->footerText() : '';
 
-        $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ) );
+        $payload = $this->payloads->fromPost( $post, (string) get_bloginfo( 'name' ), $permlink, $footer, $this->settings->beneficiaries( $connectorId ), $this->settings->categoryMapFor( $connectorId ), $this->shortenBareUrls( $postId ), $this->internalLinkResolver( $postId, $connectorId ) );
         $req     = $connector->buildSigningRequest( $payload );
 
         return [

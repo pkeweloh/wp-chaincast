@@ -18,6 +18,7 @@ use League\HTMLToMarkdown\HtmlConverter;
 final class HtmlToMarkdown {
 
     private HtmlConverter $converter;
+    private LinkConverter $links;
 
     public function __construct(
         MediaLinkConverter $media = new MediaLinkConverter(),
@@ -33,14 +34,17 @@ final class HtmlToMarkdown {
             ]
         );
 
+        $this->links = new LinkConverter();
+
         $environment = $this->converter->getEnvironment();
         // Not part of the library defaults; without it table cells collapse into a
         // single run of text.
         $environment->addConverter( new TableConverter() );
-        $environment->addConverter( new LinkConverter() );
+        $environment->addConverter( $this->links );
         $environment->addConverter( $media );
         $environment->addConverter( new FigureConverter() );
         $environment->addConverter( new FigcaptionConverter() );
+        $environment->addConverter( new IframeEmbedConverter() );
     }
 
     /**
@@ -49,6 +53,17 @@ final class HtmlToMarkdown {
      */
     public function shortenBareUrls( bool $enabled ): void {
         $this->converter->getConfig()->setOption( LinkConverter::SHORTEN_OPTION, $enabled );
+    }
+
+    /**
+     * Rewrites the href of links the resolver claims, which is how a link to
+     * another post of the site is pointed at that same post on the destination
+     * chain. Null: every link travels as written.
+     *
+     * @param null|callable(string):string $resolver
+     */
+    public function rewriteLinks( ?callable $resolver ): void {
+        $this->links->resolveHrefWith( $resolver );
     }
 
     public function convert( string $html ): string {

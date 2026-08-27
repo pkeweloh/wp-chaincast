@@ -26,7 +26,8 @@ final class MetaBox {
     private const ACTION           = 'chaincast_publish_now';
     private const ACTION_CLEAR_LOG = 'chaincast_clear_log';
     private const OPTIONS_NONCE    = 'chaincast_post_options_nonce';
-    private const OPTIONS_FIELD    = 'chaincast_shorten_urls';
+    private const SHORTEN_FIELD    = 'chaincast_shorten_urls';
+    private const REWRITE_FIELD    = 'chaincast_rewrite_links';
 
     private PostState $state;
     private PublishLog $log;
@@ -75,7 +76,7 @@ final class MetaBox {
         }
 
         $this->renderSizeWarning( $post, $all );
-        $this->renderLinkOption( $post );
+        $this->renderPostOptions( $post );
 
         echo '<hr>';
         foreach ( $all as $connector ) {
@@ -144,25 +145,38 @@ final class MetaBox {
     }
 
     /**
-     * Per-post choice on shortening bare links: it depends on how tight this
-     * article is against the size limit, so it does not belong in the settings.
-     * Starts off from the site setting and, once the post is saved, stays where
-     * the author left it.
+     * Per-post conversion choices: they depend on how tight this article is
+     * against the size limit and on what it links to, so they do not belong in
+     * the settings alone. Each starts off from the site setting and, once the
+     * post is saved, stays where the author left it.
      */
-    private function renderLinkOption( WP_Post $post ): void {
+    private function renderPostOptions( WP_Post $post ): void {
         wp_nonce_field( self::OPTIONS_NONCE, self::OPTIONS_NONCE );
 
+        $this->renderOption(
+            self::SHORTEN_FIELD,
+            $this->publisher->shortenBareUrls( (int) $post->ID ),
+            __( 'Shorten bare links', 'chaincast' ),
+            esc_attr__( 'Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL. Video links are left alone, so the player survives.', 'chaincast' )
+        );
+
+        $this->renderOption(
+            self::REWRITE_FIELD,
+            $this->publisher->rewriteInternalLinks( (int) $post->ID ),
+            __( 'Internal links to the chain', 'chaincast' ),
+            esc_attr__( 'A link to another post of this site points at the same post on the chain being published to. If it is not published there, the link to the blog stays.', 'chaincast' )
+        );
+    }
+
+    private function renderOption( string $field, bool $checked, string $label, string $help ): void {
         echo '<p style="margin:0 0 10px">';
         printf(
             '<label><input type="checkbox" name="%s" value="1"%s /> %s</label> ',
-            esc_attr( self::OPTIONS_FIELD ),
-            checked( $this->publisher->shortenBareUrls( (int) $post->ID ), true, false ),
-            esc_html__( 'Shorten bare links', 'chaincast' )
+            esc_attr( $field ),
+            checked( $checked, true, false ),
+            esc_html( $label )
         );
-        Assets::renderHelp(
-            esc_attr__( 'Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL.', 'chaincast' ),
-            true
-        );
+        Assets::renderHelp( $help, true );
         echo '</p>';
     }
 
@@ -179,7 +193,8 @@ final class MetaBox {
             return;
         }
 
-        $this->state->setShortenBareUrls( $postId, ! empty( $_POST[ self::OPTIONS_FIELD ] ) );
+        $this->state->setShortenBareUrls( $postId, ! empty( $_POST[ self::SHORTEN_FIELD ] ) );
+        $this->state->setRewriteInternalLinks( $postId, ! empty( $_POST[ self::REWRITE_FIELD ] ) );
     }
 
     /**

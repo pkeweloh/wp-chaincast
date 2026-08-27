@@ -25,14 +25,35 @@ final class PostState {
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_FAILED    = 'failed';
 
-    /** Per-post override of the bare-link setting: '1', '0' or absent (inherit). */
+    /** Per-post overrides of the conversion settings: '1', '0' or absent (inherit). */
     private const META_SHORTEN_URLS = '_chaincast_shorten_urls';
+    private const META_REWRITE_LINKS = '_chaincast_rewrite_links';
 
     /**
      * Per-post choice on shortening bare links, or null to follow the global one.
      */
     public function shortenBareUrls( int $postId ): ?bool {
-        $value = get_post_meta( $postId, self::META_SHORTEN_URLS, true );
+        return $this->override( $postId, self::META_SHORTEN_URLS );
+    }
+
+    public function setShortenBareUrls( int $postId, bool $value ): void {
+        update_post_meta( $postId, self::META_SHORTEN_URLS, $value ? '1' : '0' );
+    }
+
+    /**
+     * Per-post choice on pointing internal links at the chain, or null to follow
+     * the global one.
+     */
+    public function rewriteInternalLinks( int $postId ): ?bool {
+        return $this->override( $postId, self::META_REWRITE_LINKS );
+    }
+
+    public function setRewriteInternalLinks( int $postId, bool $value ): void {
+        update_post_meta( $postId, self::META_REWRITE_LINKS, $value ? '1' : '0' );
+    }
+
+    private function override( int $postId, string $metaKey ): ?bool {
+        $value = get_post_meta( $postId, $metaKey, true );
         if ( '1' === $value ) {
             return true;
         }
@@ -40,10 +61,6 @@ final class PostState {
             return false;
         }
         return null;
-    }
-
-    public function setShortenBareUrls( int $postId, bool $value ): void {
-        update_post_meta( $postId, self::META_SHORTEN_URLS, $value ? '1' : '0' );
     }
 
     private static function metaKey( string $connectorId ): string {

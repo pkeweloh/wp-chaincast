@@ -30,12 +30,14 @@ final class PayloadFactory {
      * @param string                $beneficiariesDefault Global beneficiaries (text) used when the post has no override.
      * @param array<string,string>  $categoryMap          WP slug => chain tag/community map for the automatic tags.
      * @param bool                  $shortenBareUrls      Relabel links whose text is the bare URL with their domain.
+     * @param null|callable(string):string $internalLinks Points links to the site's own posts at the destination chain.
      */
-    public function fromPost( WP_Post $post, string $siteName, string $permlinkOverride = '', string $footerTemplate = '', string $beneficiariesDefault = '', array $categoryMap = [], bool $shortenBareUrls = false ): PostPayload {
+    public function fromPost( WP_Post $post, string $siteName, string $permlinkOverride = '', string $footerTemplate = '', string $beneficiariesDefault = '', array $categoryMap = [], bool $shortenBareUrls = false, ?callable $internalLinks = null ): PostPayload {
         $canonical = (string) get_permalink( $post );
         $html      = (string) apply_filters( 'the_content', $post->post_content );
 
         $this->markdown->shortenBareUrls( $shortenBareUrls );
+        $this->markdown->rewriteLinks( $internalLinks );
         $body = $this->markdown->convert( $html );
         $featured  = $this->featuredImage( $post );
 

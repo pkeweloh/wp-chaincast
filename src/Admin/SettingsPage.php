@@ -185,6 +185,7 @@ final class SettingsPage {
             'footer_enabled' => ! empty( $generalIn['footer_enabled'] ) ? '1' : '',
             'footer_text'    => sanitize_text_field( (string) ( $generalIn['footer_text'] ?? '' ) ),
             'shorten_urls'   => ! empty( $generalIn['shorten_urls'] ) ? '1' : '',
+            'rewrite_links'  => ! empty( $generalIn['rewrite_links'] ) ? '1' : '',
         ];
 
         return $result;
@@ -294,6 +295,18 @@ final class SettingsPage {
                                 </label>
                                 <p class="description">
                                     <?php echo esc_html__( 'Default for new posts, overridable in each post. Reads better in a list of sources and saves bytes against the chain size limit; the link still points to the full URL.', 'chaincast' ); ?>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php echo esc_html__( 'Internal links', 'chaincast' ); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="<?php echo esc_attr( Settings::OPTION ); ?>[general][rewrite_links]" value="1" <?php checked( ! empty( $general['rewrite_links'] ) ); ?> />
+                                    <?php echo esc_html__( 'Point links to your own posts at the same post on the chain', 'chaincast' ); ?>
+                                </label>
+                                <p class="description">
+                                    <?php echo esc_html__( 'Default for new posts, overridable in each post. A post not published on that chain keeps its link to the blog. Images and files are never touched.', 'chaincast' ); ?>
                                 </p>
                             </td>
                         </tr>

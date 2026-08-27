@@ -92,6 +92,14 @@ final class Settings {
     }
 
     /**
+     * Point links to the site's own posts at the same post on the destination
+     * chain? Off by default: every link travels as written.
+     */
+    public function rewriteInternalLinks(): bool {
+        return ! empty( $this->general()['rewrite_links'] );
+    }
+
+    /**
      * Footer template (with {site} and {url} placeholders). If empty, uses the
      * default.
      */

@@ -275,7 +275,7 @@ msgstr ""
 msgid "Shorten bare links"
 msgstr ""
 
-msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL."
+msgid "Only affects links whose visible text is the URL itself: they are relabelled with their domain and still point to the full URL. Video links are left alone, so the player survives."
 msgstr ""
 
 msgid "Payout"
@@ -294,4 +294,19 @@ msgid "Decline payout"
 msgstr ""
 
 msgid "Declining the payout publishes the post without collecting any reward."
+msgstr ""
+
+msgid "Internal links to the chain"
+msgstr ""
+
+msgid "A link to another post of this site points at the same post on the chain being published to. If it is not published there, the link to the blog stays."
+msgstr ""
+
+msgid "Internal links"
+msgstr ""
+
+msgid "Point links to your own posts at the same post on the chain"
+msgstr ""
+
+msgid "Default for new posts, overridable in each post. A post not published on that chain keeps its link to the blog. Images and files are never touched."
 msgstr ""

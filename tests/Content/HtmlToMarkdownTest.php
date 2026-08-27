@@ -354,4 +354,99 @@ final class HtmlToMarkdownTest extends TestCase {
         // Act & Assert
         $this->assertSame( $markdown, $this->converter->appendFooter( $markdown, '   ' ) );
     }
+
+    public function testProviderIframeBecomesTheNakedUrlOnItsOwnLine(): void {
+        // Arrange
+        $html = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">'
+            . '<iframe src="https://play.3speak.tv/embed?v=demo-author/abcdefg" allowfullscreen></iframe>'
+            . '</div></figure>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'https://play.3speak.tv/embed?v=demo-author/abcdefg', $markdown );
+    }
+
+    public function testIframeFromAnUnknownProviderIsDropped(): void {
+        // Arrange
+        $html = '<p>Before.</p><iframe src="https://example.com/widget"></iframe><p>After.</p>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertStringNotContainsString( 'example.com/widget', $markdown );
+        $this->assertStringContainsString( 'Before.', $markdown );
+        $this->assertStringContainsString( 'After.', $markdown );
+    }
+
+    public function testShorteningNeverTouchesAVideoLinkBecauseItWouldKillThePlayer(): void {
+        // Arrange
+        $converter = new HtmlToMarkdown();
+        $converter->shortenBareUrls( true );
+        $html = '<p><a href="https://www.youtube.com/watch?v=abcdefghijk">https://www.youtube.com/watch?v=abcdefghijk</a></p>';
+
+        // Act
+        $markdown = $converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'https://www.youtube.com/watch?v=abcdefghijk', $markdown );
+    }
+
+    public function testALabelledVideoLinkKeepsItsLabel(): void {
+        // Arrange
+        $html = '<p>See <a href="https://youtu.be/abcdefghijk">the recording</a>.</p>';
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'See [the recording](https://youtu.be/abcdefghijk).', $markdown );
+    }
+
+    public function testInternalLinkIsPointedAtTheChainWhenTheResolverClaimsIt(): void {
+        // Arrange
+        $html = '<p>As told in <a href="https://example.com/who-controls-it/">the first part</a>.</p>';
+        $this->converter->rewriteLinks(
+            static fn( string $href ): string => 'https://example.com/who-controls-it/' === $href
+                ? 'https://hive.blog/@demo-author/who-controls-it-10'
+                : ''
+        );
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'As told in [the first part](https://hive.blog/@demo-author/who-controls-it-10).', $markdown );
+    }
+
+    public function testAnUnclaimedLinkIsLeftExactlyAsItWas(): void {
+        // Arrange
+        $html = '<p>As told in <a href="https://example.com/only-on-the-blog/">the first part</a>.</p>';
+        $this->converter->rewriteLinks( static fn( string $href ): string => '' );
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame( 'As told in [the first part](https://example.com/only-on-the-blog/).', $markdown );
+    }
+
+    public function testARewrittenBareLinkAlsoShowsTheChainUrlAsItsText(): void {
+        // Arrange
+        $html = '<p><a href="https://example.com/who-controls-it/">https://example.com/who-controls-it/</a></p>';
+        $this->converter->rewriteLinks(
+            static fn( string $href ): string => 'https://hive.blog/@demo-author/who-controls-it-10'
+        );
+
+        // Act
+        $markdown = $this->converter->convert( $html );
+
+        // Assert
+        $this->assertSame(
+            '[https://hive.blog/@demo-author/who-controls-it-10](https://hive.blog/@demo-author/who-controls-it-10)',
+            $markdown
+        );
+    }
 }
