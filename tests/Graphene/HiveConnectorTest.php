@@ -403,6 +403,31 @@ final class HiveConnectorTest extends TestCase {
         );
     }
 
+    public function testPermlinkComesFromTheSlugNotTheTitle(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured );
+
+        $payload = new PostPayload(
+            title: 'Lo que tumba una ZBE no es la etiqueta, son tres papeles',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: 'https://example.com/lo-que-tumba-una-zbe-son-tres-papeles',
+            wpPostId: 85,
+            slug: 'lo-que-tumba-una-zbe-son-tres-papeles',
+        );
+
+        // Act
+        $result = $connector->publish( $payload );
+
+        // Assert
+        $this->assertTrue( $result->success, $result->error ?? '' );
+        $this->assertSame( 'lo-que-tumba-una-zbe-son-tres-papeles', $result->ref );
+        $this->assertSame( 'lo-que-tumba-una-zbe-son-tres-papeles', $captured['operations'][0][1]['permlink'] );
+    }
+
     public function testPublishRefusesABodyOverTheChainLimit(): void {
         // Arrange
         $captured  = null;

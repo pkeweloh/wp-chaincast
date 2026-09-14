@@ -372,7 +372,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
         if ( is_string( $override ) && '' !== $override ) {
             return $override;
         }
-        return $this->permlinks->generate( $post->title, $post->wpPostId );
+        return $this->permlinks->generate( $post->slug, $post->title, $post->wpPostId );
     }
 
     protected function parentPermlink( PostPayload $post ): string {

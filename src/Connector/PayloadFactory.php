@@ -62,6 +62,7 @@ final class PayloadFactory {
             wpPostId: (int) $post->ID,
             beneficiaries: Beneficiaries::parseSafe( $beneficiariesDefault ),
             extra: $extra,
+            slug: (string) $post->post_name,
         );
     }
 

@@ -26,6 +26,7 @@ final class PostPayload {
      * @param array<int,array{account:string,weight:int}> $beneficiaries Validated, ordered reward
      *        split list (weight in basis points). Empty: 100% to the author.
      * @param array<string,mixed>  $extra         Extra per-connector data (tag override, etc.).
+     * @param string               $slug          WordPress slug (post_name); source of the permlink on first publish.
      */
     public function __construct(
         public readonly string $title,
@@ -37,6 +38,7 @@ final class PostPayload {
         public readonly int $wpPostId,
         public readonly array $beneficiaries = [],
         public readonly array $extra = [],
+        public readonly string $slug = '',
     ) {
     }
 }

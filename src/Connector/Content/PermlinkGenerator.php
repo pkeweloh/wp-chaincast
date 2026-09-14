@@ -19,12 +19,18 @@ final class PermlinkGenerator {
     private const MAX_LENGTH = 256;
 
     /**
-     * Clean permlink from the title. The post ID is only used as a fallback when
-     * the title yields no slug (e.g. empty title or no ASCII characters), to
-     * guarantee a non-empty permlink.
+     * Clean permlink from the WordPress slug (post_name), so a slug shortened by
+     * hand in the editor is what lands on the chain. WordPress stores accented
+     * slugs percent-encoded (%c3%a1), hence the decode before slugifying. Falls
+     * back to the title when the post has no slug yet (drafts, autosaves), and to
+     * the post ID when neither yields anything, to guarantee a non-empty permlink.
      */
-    public function generate( string $title, int $postId ): string {
-        $slug = $this->slugify( $title );
+    public function generate( string $slug, string $title, int $postId ): string {
+        $slug = $this->slugify( rawurldecode( $slug ) );
+
+        if ( '' === $slug ) {
+            $slug = $this->slugify( $title );
+        }
 
         if ( '' === $slug ) {
             return 'post-' . $postId;

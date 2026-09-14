@@ -8,8 +8,9 @@
  * a post already published there becomes its chain URL; a post NOT published
  * there keeps the link to the blog, which is a common case, not an edge one.
  *
- * The permlink is never derived from the WP slug: old posts carry permlinks that
- * no longer match it, so the one recorded when publishing is the only truth.
+ * The permlink is never re-derived from the WP slug here: old posts carry
+ * permlinks that no longer match it, so the one recorded when publishing is
+ * the only truth.
  *
  * @package Chaincast\Connector\Content
  */

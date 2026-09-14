@@ -18,34 +18,45 @@ final class PermlinkGeneratorTest extends TestCase {
         $this->gen = new PermlinkGenerator();
     }
 
-    public function testBasicSlugIsClean(): void {
-        $this->assertSame( 'hola-mundo', $this->gen->generate( 'Hola Mundo', 42 ) );
+    public function testSlugWinsOverTitle(): void {
+        $this->assertSame(
+            'lo-que-tumba-una-zbe-son-tres-papeles',
+            $this->gen->generate( 'lo-que-tumba-una-zbe-son-tres-papeles', 'Lo que tumba una ZBE no es la etiqueta, son tres papeles', 42 )
+        );
+    }
+
+    public function testDecodesPercentEncodedSlug(): void {
+        $this->assertSame( 'cafe-nandu', $this->gen->generate( 'caf%c3%a9-%c3%b1and%c3%ba', 'Otro título', 7 ) );
+    }
+
+    public function testEmptySlugFallsBackToTitle(): void {
+        $this->assertSame( 'hola-mundo', $this->gen->generate( '', 'Hola Mundo', 42 ) );
     }
 
     public function testTransliteratesAccentsAndStripsSymbols(): void {
-        $this->assertSame( 'cafe-nandu-y-emojis', $this->gen->generate( 'Café, ñandú y emojis 🚀', 7 ) );
+        $this->assertSame( 'cafe-nandu-y-emojis', $this->gen->generate( '', 'Café, ñandú y emojis 🚀', 7 ) );
     }
 
     public function testOnlyAllowedCharacters(): void {
-        $permlink = $this->gen->generate( '¿Qué? ¡Sí! 100% «genial»', 5 );
+        $permlink = $this->gen->generate( '', '¿Qué? ¡Sí! 100% «genial»', 5 );
         $this->assertMatchesRegularExpression( '/^[a-z0-9-]+$/', $permlink );
         $this->assertSame( 'que-si-100-genial', $permlink );
     }
 
-    public function testEmptyTitleFallsBackToPostId(): void {
-        $this->assertSame( 'post-99', $this->gen->generate( '🚀🚀🚀', 99 ) );
-        $this->assertSame( 'post-99', $this->gen->generate( '', 99 ) );
+    public function testNothingUsableFallsBackToPostId(): void {
+        $this->assertSame( 'post-99', $this->gen->generate( '', '🚀🚀🚀', 99 ) );
+        $this->assertSame( 'post-99', $this->gen->generate( '🚀', '', 99 ) );
     }
 
     public function testRespectsMaxLength(): void {
-        $permlink = $this->gen->generate( str_repeat( 'palabra ', 100 ), 12345 );
+        $permlink = $this->gen->generate( str_repeat( 'palabra-', 100 ), '', 12345 );
         $this->assertLessThanOrEqual( 256, strlen( $permlink ) );
     }
 
     public function testDeterministicForIdempotentEdits(): void {
         $this->assertSame(
-            $this->gen->generate( 'Mi Post', 10 ),
-            $this->gen->generate( 'Mi Post', 10 )
+            $this->gen->generate( 'mi-post', 'Mi Post', 10 ),
+            $this->gen->generate( 'mi-post', 'Mi Post', 10 )
         );
     }
 }
