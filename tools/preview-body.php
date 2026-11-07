@@ -50,6 +50,7 @@ $payload = ( new PayloadFactory( new HtmlToMarkdown( new MediaLinkConverter() ) 
 WP_CLI::line( '--- ' . $connectorId . ' | shorten: ' . ( $shorten ? 'on' : 'off' ) . ' | internal links: ' . ( $rewrite ? 'on' : 'off' ) . ' ---' );
 WP_CLI::line( 'Title: ' . $payload->title );
 WP_CLI::line( 'Tags: ' . implode( ', ', $payload->tags ) );
+WP_CLI::line( 'Excerpt: ' . $payload->excerpt );
 WP_CLI::line( 'Body bytes: ' . strlen( $payload->body ) );
 WP_CLI::line( '' );
 WP_CLI::line( $payload->body );

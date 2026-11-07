@@ -27,6 +27,7 @@ final class PostPayload {
      *        split list (weight in basis points). Empty: 100% to the author.
      * @param array<string,mixed>  $extra         Extra per-connector data (tag override, etc.).
      * @param string               $slug          WordPress slug (post_name); source of the permlink on first publish.
+     * @param string               $excerpt       Excerpt written by hand in WordPress; empty if there is none.
      */
     public function __construct(
         public readonly string $title,
@@ -39,6 +40,7 @@ final class PostPayload {
         public readonly array $beneficiaries = [],
         public readonly array $extra = [],
         public readonly string $slug = '',
+        public readonly string $excerpt = '',
     ) {
     }
 }

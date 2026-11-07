@@ -43,4 +43,21 @@ final class JsonMetadataTest extends TestCase {
         $meta = json_decode( ( new JsonMetadata() )->build( $this->payload( [ 'blog' ], [], 'https://example.com/x' ) ), true );
         $this->assertSame( 'https://example.com/x', $meta['canonical_url'] );
     }
+
+    public function testDescriptionIsTheExcerptWhenRequested(): void {
+        $payload = new PostPayload( 'T', 'B', [ 'blog' ], [], 'demo-author', '', 1, excerpt: 'Un extracto.' );
+        $meta    = json_decode( ( new JsonMetadata() )->build( $payload, true ), true );
+        $this->assertSame( 'Un extracto.', $meta['description'] );
+    }
+
+    public function testDescriptionOmittedWithoutAnExcerpt(): void {
+        $meta = json_decode( ( new JsonMetadata() )->build( $this->payload( [ 'blog' ] ), true ), true );
+        $this->assertArrayNotHasKey( 'description', $meta );
+    }
+
+    public function testDescriptionOmittedUnlessRequested(): void {
+        $payload = new PostPayload( 'T', 'B', [ 'blog' ], [], 'demo-author', '', 1, excerpt: 'Un extracto.' );
+        $meta    = json_decode( ( new JsonMetadata() )->build( $payload ), true );
+        $this->assertArrayNotHasKey( 'description', $meta );
+    }
 }

@@ -2,8 +2,9 @@
 /**
  * Builds the comment operation's `json_metadata`.
  *
- * Includes tags (normalized, max 5), the app signature, the format, the images
- * and the canonical link back to the site (attribution/SEO).
+ * Includes tags (normalized, max 5), the app signature, the format, the images,
+ * the canonical link back to the site (attribution/SEO) and, on request, the
+ * excerpt as description.
  *
  * @package Chaincast\Connector\Content
  */
@@ -23,7 +24,7 @@ final class JsonMetadata {
     ) {
     }
 
-    public function build( PostPayload $payload ): string {
+    public function build( PostPayload $payload, bool $withDescription = false ): string {
         $meta = [
             'tags'   => $this->normalizeTags( $payload->tags ),
             'app'    => $this->appVersion,
@@ -36,6 +37,10 @@ final class JsonMetadata {
 
         if ( '' !== $payload->canonicalUrl ) {
             $meta['canonical_url'] = $payload->canonicalUrl;
+        }
+
+        if ( $withDescription && '' !== $payload->excerpt ) {
+            $meta['description'] = $payload->excerpt;
         }
 
         return (string) json_encode( $meta, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );

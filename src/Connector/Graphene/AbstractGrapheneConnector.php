@@ -56,6 +56,11 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
 
     abstract protected function postUrl( string $author, string $permlink ): string;
 
+    /** Whether the chain's frontends read json_metadata.description for the post summary. */
+    protected function sendsDescription(): bool {
+        return false;
+    }
+
     // ConnectorInterface
 
     public function isConfigured(): bool {
@@ -142,7 +147,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
                     'permlink'        => $permlink,
                     'title'           => $post->title,
                     'body'            => $post->body,
-                    'json_metadata'   => $this->jsonMetadata->build( $post ),
+                    'json_metadata'   => $this->jsonMetadata->build( $post, $this->sendsDescription() ),
                 ],
             ],
         ];
@@ -241,7 +246,7 @@ abstract class AbstractGrapheneConnector implements ConnectorInterface {
                     'permlink'        => $permlink,
                     'title'           => $post->title,
                     'body'            => $post->body,
-                    'json_metadata'   => $this->jsonMetadata->build( $post ),
+                    'json_metadata'   => $this->jsonMetadata->build( $post, $this->sendsDescription() ),
                 ],
             ],
         ];

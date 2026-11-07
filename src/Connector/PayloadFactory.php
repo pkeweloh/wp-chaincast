@@ -63,6 +63,7 @@ final class PayloadFactory {
             beneficiaries: Beneficiaries::parseSafe( $beneficiariesDefault ),
             extra: $extra,
             slug: (string) $post->post_name,
+            excerpt: html_entity_decode( wp_strip_all_tags( $post->post_excerpt, true ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
         );
     }
 

@@ -108,6 +108,34 @@ final class SteemConnectorTest extends TestCase {
         $this->assertSame( '1000000.000 SBD', $co['max_accepted_payout'] );
     }
 
+    public function testExcerptDoesNotTravelToSteem(): void {
+        // Arrange
+        $connector = new SteemConnector(
+            new GrapheneConfig( author: 'demo-author' ),
+            new RpcClient( [ self::NODE ], new FakeTransport( [ self::NODE => FakeTransport::okBody( null ) ] ) ),
+            new Vault( 'test-secret' ),
+            new Secp256k1(),
+            new PermlinkGenerator(),
+            new JsonMetadata(),
+        );
+        $payload   = new PostPayload(
+            title: 'Con extracto',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: '',
+            wpPostId: 95,
+            excerpt: 'Un extracto.',
+        );
+
+        // Act
+        $request = $connector->buildSigningRequest( $payload );
+
+        // Assert
+        $this->assertArrayNotHasKey( 'description', json_decode( $request['operations'][0][1]['json_metadata'], true ) );
+    }
+
     public function testPublishUsesSteemChainAndUrl(): void {
         // Arrange
         $captured = null;

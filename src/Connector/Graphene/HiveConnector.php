@@ -45,4 +45,8 @@ final class HiveConnector extends AbstractGrapheneConnector {
     protected function postUrl( string $author, string $permlink ): string {
         return sprintf( 'https://hive.blog/@%s/%s', $author, $permlink );
     }
+
+    protected function sendsDescription(): bool {
+        return true;
+    }
 }

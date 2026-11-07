@@ -87,6 +87,7 @@ final class PublishService {
 
         return strlen( $payload->title )
             + strlen( $payload->body )
+            + strlen( $payload->excerpt )
             + strlen( implode( ',', $payload->images ) )
             + self::OPERATION_OVERHEAD_BYTES;
     }

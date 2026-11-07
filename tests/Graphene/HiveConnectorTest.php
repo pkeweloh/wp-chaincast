@@ -453,6 +453,30 @@ final class HiveConnectorTest extends TestCase {
         $this->assertFalse( $result->retryable, 'Retrying will not make the post smaller.' );
     }
 
+    public function testExcerptTravelsAsDescriptionInBothModes(): void {
+        // Arrange
+        $captured  = null;
+        $connector = $this->connectorCapturing( $captured );
+        $payload   = new PostPayload(
+            title: 'Con extracto',
+            body: 'Cuerpo.',
+            tags: [ 'blog' ],
+            images: [],
+            author: 'demo-author',
+            canonicalUrl: '',
+            wpPostId: 95,
+            excerpt: 'Un extracto.',
+        );
+
+        // Act
+        $connector->publish( $payload );
+        $assisted = $connector->buildSigningRequest( $payload );
+
+        // Assert
+        $this->assertSame( 'Un extracto.', json_decode( $captured['operations'][0][1]['json_metadata'], true )['description'] );
+        $this->assertSame( 'Un extracto.', json_decode( $assisted['operations'][0][1]['json_metadata'], true )['description'] );
+    }
+
     public function testPublishFailsGracefullyWithoutPostingKey(): void {
         $connector = new HiveConnector(
             new GrapheneConfig( author: 'demo-author' ), // no posting key.
